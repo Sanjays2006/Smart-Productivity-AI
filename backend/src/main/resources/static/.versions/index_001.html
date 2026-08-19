@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <script>
+    (function() {
+      const saved = localStorage.getItem('ft-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FocusAI — Smart Productivity Dashboard</title>
+  <meta name="description" content="AI-powered productivity dashboard with time tracking, gamification, and offline AI assistant.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <link rel="stylesheet" href="/css/styles.css?v=14">
+</head>
+<body>
+
+<!-- ── Ambient Background ── -->
+<div class="ambient-bg">
+  <div id="particles-js" style="position: absolute; width: 100%; height: 100%; top:0; left:0; z-index: 1;"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- ── Toast ── -->
+<div id="toast" class="toast-stack" aria-live="polite"></div>
+
+<!-- ── XP Pop ── -->
+<div class="xp-pop" id="xpPop"></div>
+
+<!-- ═══════════════════════════ APP SHELL ═══════════════════════════ -->
+<div class="app-shell">
+
+  <!-- ─── SIDEBAR ─── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo"><i class="fa-solid fa-bolt"></i></div>
+      <span class="brand-name">Focus<em>AI</em></span>
+      <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="Collapse"><i class="fa-solid fa-chevron-left"></i></button>
+    </div>
+
+    <!-- Theme Toggle at the Top -->
+    <div style="display: flex; justify-content: center; margin-bottom: 24px; padding-top: 12px;">
+      <button class="theme-toggle-btn" id="themeToggle">
+        <i class="fa-solid fa-sun" id="themeIcon"></i>
+        <span>Light</span>
+      </button>
+    </div>
+
+    <!-- Nav -->
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-view="view-dashboard" title="Productivity Hub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span>Productivity Hub</span></a>
+      <a href="#" class="nav-item" data-view="view-timer" title="Timer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg><span>Timer</span></a>
+      <a href="#" class="nav-item" data-view="view-notes" title="Notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg><span>Notes</span></a>
+      <a href="#" class="nav-item" data-view="view-rag-validation" title="RAG Monitor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M20.188 10.934A8.985 8.985 0 0 1 21 12a9 9 0 1 1-4.5-7.794"></path><path d="m15 2 5 5-5 5"></path></svg><span>RAG Monitor</span></a>
+      <a href="#" class="nav-item" data-view="view-learning-hub" title="Learning Hub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg><span>Learning Hub</span></a>
+    </nav>
+  </aside>
+
+  <!-- ─── MAIN ─── -->
+  <div class="main-wrap">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+        <div class="topbar-breadcrumb" id="topbarTitle">Dashboard</div>
+      </div>
+      <div class="topbar-right">
+        <div class="ai-status-pill" id="ollamaStatusPill"><span class="ai-dot" id="ollamaDot"></span><span id="ollamaLabel">Checking AI...</span></div>
+        <div class="topbar-date" id="topbarDate"></div>
+        <button class="topbar-icon-btn" id="notifBellBtn" title="Notifications"><i class="fa-regular fa-bell"></i><span class="notif-dot" id="notifDot" style="display: none;"></span></button>
+        <div class="topbar-avatar" title="Profile"><i class="fa-solid fa-user"></i></div>
+      </div>
+    </header>
+
+    <!-- USER PROFILE DROPDOWN PANEL -->
+    <div class="profile-dropdown glass-card" id="profileDropdown" style="display: none;">
+      <div class="profile-dropdown-header" style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border-glass); padding-bottom: 14px; margin-bottom: 14px;">
+        <div class="profile-dropdown-avatar" style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); display: flex; align-items: center; justify-content: center; font-size: 18px; color: #fff; box-shadow: 0 0 10px var(--primary-glow);"><i class="fa-solid fa-user"></i></div>
+        <div style="flex: 1; overflow: hidden;">
+          <h4 id="profileDropdownName" style="margin: 0; font-size: 14px; color: var(--text-100); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Explorer</h4>
+          <p id="profileDropdownEmail" style="margin: 0; font-size: 11px; color: var(--text-400); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">email@local</p>
+        </div>
+      </div>
+      
+      <div class="profile-dropdown-details" style="display: flex; flex-direction: column; gap: 8px; font-size: 11px; font-family: var(--font-mono); color: var(--text-300); margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between;"><span style="opacity: 0.5;">ROLE:</span><span id="profileDropdownRole" class="badge-role" style="color: var(--secondary); font-weight: 700; border: 1px solid rgba(6, 182, 212, 0.2); background: rgba(6, 182, 212, 0.05); padding: 2px 6px; border-radius: 4px; font-size: 9px;">USER</span></div>
+        <div style="display: flex; justify-content: space-between;"><span style="opacity: 0.5;">CREATED AT:</span><span id="profileDropdownCreated">-</span></div>
+        <div style="display: flex; justify-content: space-between;"><span style="opacity: 0.5;">DB CORE:</span><span id="profileDropdownDbStatus" style="font-weight: 700; color: var(--secondary);">-</span></div>
+      </div>
+      
+      <div style="border-top: 1px solid var(--border-glass); padding-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+        <button class="btn-profile-dropdown" onclick="switchView('view-db-monitor'); toggleProfileDropdown();" style="background: none; border: none; padding: 8px 12px; font-family: var(--font-mono); font-size: 11px; color: var(--text-200); text-align: left; cursor: pointer; border-radius: 8px; transition: var(--t-fast); display: flex; align-items: center; gap: 10px; border: 1px solid transparent; width:100%;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; color: var(--primary-lt);"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"></path></svg> DB MONITOR</button>
+        <button class="btn-profile-dropdown" onclick="Api.logout()" style="background: rgba(255,85,85,0.05); border: 1px solid rgba(255,85,85,0.15); padding: 8px 12px; font-family: var(--font-mono); font-size: 11px; color: #ff5555; text-align: center; cursor: pointer; border-radius: 8px; transition: var(--t-fast); display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;"><i class="fa-solid fa-power-off"></i> DISCONNECT CORE</button>
+      </div>
+    </div>
+    
+    <!-- NOTIFICATIONS DROPDOWN PANEL -->
+    <div class="profile-dropdown glass-card" id="notificationsDropdown" style="display: none; width: 340px; padding: 18px; max-height: 480px; flex-direction: column; overflow: hidden;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glass); padding-bottom: 12px; margin-bottom: 12px;">
+        <h4 style="margin: 0; font-size: 11px; font-family: var(--font-mono); color: var(--text-100); display: flex; align-items: center; gap: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-bell" style="color: var(--secondary);"></i> Notifications</h4>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button onclick="clearAllNotifications()" style="background: none; border: none; font-family: var(--font-mono); font-size: 10px; color: var(--text-400); cursor: pointer; transition: var(--t-fast); text-transform: uppercase;" onmouseover="this.style.color='#ff5555'" onmouseout="this.style.color='var(--text-400)'">Clear All</button>
+          <button id="notifCloseBtn" style="background: none; border: none; font-size: 14px; color: var(--text-400); cursor: pointer; transition: var(--t-fast); display: flex; align-items: center; justify-content: center; padding: 2px;" title="Close Notifications" onmouseover="this.style.color='var(--text-100)'" onmouseout="this.style.color='var(--text-400)'"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div id="notificationsList" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; max-height: 360px;">
+        <!-- Notifications populated dynamically -->
+      </div>
+    </div>
+
+    <main class="main-content">
+
+      <!-- ═════════════════ PRODUCTIVITY INTELLIGENCE HUB ═════════════════ -->
+      <section class="view active container-fluid" id="view-dashboard">
+
+        <!-- Hub Header -->
+        <div class="view-header mb-3" style="flex-wrap:wrap; gap:16px;">
+          <div>
+            <h1 class="view-title" id="dashGreeting">Good morning! 👋</h1>
+            <p class="view-subtitle">Productivity Intelligence Hub — Real-time insights, activity audit, and system intelligence.</p>
+          </div>
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <!-- Hub-Level Navigation Tabs -->
+            <div class="intel-tabs hub-tabs" id="hubTabNav" style="display:flex; background:rgba(255,255,255,0.03); border-radius:10px; padding:4px; border:1px solid var(--border-glass);">
+              <button class="intel-tab-btn hub-tab-btn active" onclick="switchHubTab('hub-overview')" style="background:none; border:none; color:var(--text-300); padding:8px 16px; font-family:var(--font-mono); font-size:11px; cursor:pointer; border-radius:6px; display:flex; align-items:center; gap:8px; transition:var(--t-fast);"><i class="fa-solid fa-gauge-high" style="color:var(--primary-lt)"></i> Executive Overview</button>
+              <button class="intel-tab-btn hub-tab-btn" onclick="switchHubTab('hub-activity-intel')" style="background:none; border:none; color:var(--text-300); padding:8px 16px; font-family:var(--font-mono); font-size:11px; cursor:pointer; border-radius:6px; display:flex; align-items:center; gap:8px; transition:var(--t-fast);"><i class="fa-solid fa-route" style="color:var(--secondary)"></i> Activity Intelligence</button>
+              <button class="intel-tab-btn hub-tab-btn" onclick="switchHubTab('hub-history')" style="background:none; border:none; color:var(--text-300); padding:8px 16px; font-family:var(--font-mono); font-size:11px; cursor:pointer; border-radius:6px; display:flex; align-items:center; gap:8px; transition:var(--t-fast);"><i class="fa-solid fa-clock-rotate-left" style="color:var(--warning)"></i> Productivity History</button>
+              <button class="intel-tab-btn hub-tab-btn" onclick="switchHubTab('hub-database')" style="background:none; border:none; color:var(--text-300); padding:8px 16px; font-family:var(--font-mono); font-size:11px; cursor:pointer; border-radius:6px; display:flex; align-items:center; gap:8px; transition:var(--t-fast);"><i class="fa-solid fa-database" style="color:var(--success)"></i> Database Inspector</button>
+            </div>
+            <button class="btn-primary btn-glow" onclick="switchView('view-timer')"><i class="fa-solid fa-play"></i> Start Session</button>
+          </div>
+        </div>
+
+        <!-- ══ HUB TAB 1: EXECUTIVE OVERVIEW ══ -->
+        <div class="intel-tab-content hub-tab-content active" id="hub-overview">
+
+          <!-- KPI Cards -->
+          <div class="row g-3 mb-4">
+            <div class="col-12 col-md-4 col-xl-2">
+              <div class="kpi-card glass-card kpi-cyan w-100 compact-kpi" id="dailyGoalKpiCard" style="cursor:pointer;" onclick="toggleGoalSettingsModal(event)">
+                <div class="kpi-icon-wrap"><i class="fa-solid fa-bullseye"></i></div>
+                <div class="w-100">
+                  <p class="kpi-label">Daily Goal</p>
+                  <div class="d-flex align-items-baseline justify-content-between">
+                    <span class="kpi-value" id="goalPct" style="font-size:20px; font-weight:800; color:var(--info);">0%</span>
+                    <span class="goal-sub-text" style="font-size: 10px; color: var(--text-300); font-family: var(--font-mono);"><span id="goalFocusDone">0h 0m</span> / <span id="goalFocusTarget">2h</span></span>
+                  </div>
+                  <div class="progress" style="height: 5px; background: rgba(255, 255, 255, 0.05); border-radius: 2.5px; overflow: hidden; margin-top: 6px;">
+                    <div class="progress-bar bg-info" id="goalBar" style="width: 0%; height: 100%; transition: width 0.6s ease; box-shadow: 0 0 8px rgba(0, 191, 255, 0.4);"></div>
+                  </div>
+                  <div class="mt-2 d-flex align-items-center gap-1.5" style="font-size: 9px; color: var(--text-400);">
+                    <span class="status-dot-sm" id="goalStatusDot" style="display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--success); box-shadow:0 0 6px var(--success);"></span>
+                    <span id="goalStatusText">Active</span>
+                  </div>
+                </div>
+                <div class="kpi-glow"></div>
+              </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+              <div class="kpi-card glass-card kpi-cyan w-100 compact-kpi">
+                <div class="kpi-icon-wrap"><i class="fa-solid fa-clock"></i></div>
+                <div>
+                  <p class="kpi-label">Today's Focus</p>
+                  <p class="kpi-value" id="kpiTime">0h 0m</p>
+                </div>
+                <div class="kpi-glow"></div>
+              </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 col-xl-2">
+              <div class="kpi-card glass-card kpi-purple w-100 compact-kpi">
+                <div class="kpi-icon-wrap"><i class="fa-solid fa-circle-check"></i></div>
+                <div>
+                  <p class="kpi-label">Sessions Done</p>
+                  <p class="kpi-value" id="kpiSessions">0</p>
+                </div>
+                <div class="kpi-glow"></div>
+              </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-6 col-xl-2">
+              <div class="kpi-card glass-card kpi-yellow w-100 compact-kpi">
+                <div class="kpi-icon-wrap"><i class="fa-solid fa-star"></i></div>
+                <div>
+                  <p class="kpi-label">XP Today</p>
+                  <p class="kpi-value" id="kpiXp">0</p>
+                </div>
+                <div class="kpi-glow"></div>
+              </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-6 col-xl-2">
+              <div class="kpi-card glass-card kpi-orange w-100 compact-kpi">
+                <div class="kpi-icon-wrap"><i class="fa-solid fa-fire"></i></div>
+                <div>
+                  <p class="kpi-label">Day Streak</p>
+                  <p class="kpi-value" id="kpiStreak">0</p>
+                </div>
+                <div class="kpi-glow"></div>
+              </div>
+            </div>
+
+            <div class="col-12 col-sm-12 col-md-12 col-xl-2">
+              <div class="kpi-card glass-card kpi-magenta w-100 compact-kpi">
+                <div class="kpi-icon-wrap"><i class="fa-solid fa-gauge-high"></i></div>
+                <div>
+                  <p class="kpi-label">Productivity Score</p>
+                  <p class="kpi-value" id="kpiProductivityScore">0%</p>
+                </div>
+                <div class="kpi-glow"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Memory & Activity Intelligence -->
+          <div class="row g-4 mb-4">
+            <div class="col-12">
+              <div class="glass-card p-4" style="border-top: 3px solid var(--secondary);">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                  <h3 class="chart-title m-0" style="color:var(--secondary); font-size:15px; font-weight:700;"><i class="fa-solid fa-sparkles"></i> AI Memory & Activity Intelligence</h3>
+                  <span class="badge" style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.25); color: var(--primary-lt); font-family: var(--font-mono); font-size: 9px;">PostgreSQL Cognitive Hub</span>
+                </div>
+                <div class="row g-4">
+                  <div class="col-12 col-lg-5 border-end border-glass-subtle pr-lg-4">
+                    <h4 style="font-size:12.5px; font-weight:600; color:var(--text-200); margin-bottom:12px;"><i class="fa-solid fa-receipt"></i> Smart Daily Briefing</h4>
+                    <div class="daily-briefing-list d-flex flex-column gap-3" id="dailyBriefingList" style="max-height: 280px; overflow-y: auto;"></div>
+                  </div>
+                  <div class="col-12 col-lg-7 pl-lg-4">
+                    <h4 style="font-size:12.5px; font-weight:600; color:var(--text-200); margin-bottom:12px;"><i class="fa-solid fa-brain"></i> Memory Recall Core</h4>
+                    <div class="recall-chips d-flex flex-wrap gap-2 mb-3">
+                      <button class="btn btn-sm btn-ghost recall-chip-btn" onclick="triggerRecallQuery('What did I work on yesterday?')">Yesterday's Work</button>
+                      <button class="btn btn-sm btn-ghost recall-chip-btn" onclick="triggerRecallQuery('Show my recent AI conversations.')">Recent AI Chats</button>
+                      <button class="btn btn-sm btn-ghost recall-chip-btn" onclick="triggerRecallQuery('Show my Java learning history.')">Java History</button>
+                      <button class="btn btn-sm btn-ghost recall-chip-btn" onclick="triggerRecallQuery('Summarize my productivity trends.')">Productivity Summary</button>
+                    </div>
+                    <div class="memory-output-box glass-inner p-3 rounded mb-3" id="memoryOutputBox" style="max-height: 160px; min-height: 130px; overflow-y: auto; font-size: 11.5px; line-height: 1.5; color: var(--text-200); background: rgba(0,0,0,0.15); border: 1px solid var(--border-glass);">
+                      <div class="text-muted text-center p-4">Select a query chip above or ask a custom question about your learning history.</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <input type="text" id="memoryQueryInput" class="styled-input flex-grow-1 m-0" style="font-size:12px; height:38px;" placeholder="Ask about past activity, progress, or logs..." onkeydown="if(event.key === 'Enter') submitRecallQuery()">
+                      <button class="btn-primary" onclick="submitRecallQuery()" style="height:38px; padding:0 16px;"><i class="fa-solid fa-paper-plane"></i> Recall</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Analytics & Insights -->
+          <div class="row g-4 mb-4">
+            <div class="col-12 col-xl-7">
+              <div class="glass-card p-4 h-100 d-flex flex-column">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+                  <h3 class="chart-title m-0" style="font-size:14px;"><i class="fa-solid fa-chart-line text-cyan"></i> Analytics & Insights</h3>
+                  <div class="analytics-toggle" style="display:flex; background:rgba(255,255,255,0.03); border-radius:8px; padding:3px; border:1px solid var(--border-glass);">
+                    <button id="btnTrendWeekly" class="btn-ghost active" onclick="toggleAnalyticsView('weekly')" style="padding:4px 10px; font-size:10px; border-radius:5px; font-family:var(--font-mono); margin:0;">Weekly Focus</button>
+                    <button id="btnTrendProductivity" class="btn-ghost" onclick="toggleAnalyticsView('productivity')" style="padding:4px 10px; font-size:10px; border-radius:5px; font-family:var(--font-mono); margin:0;">Productivity</button>
+                    <button id="btnTrendLearning" class="btn-ghost" onclick="toggleAnalyticsView('learning')" style="padding:4px 10px; font-size:10px; border-radius:5px; font-family:var(--font-mono); margin:0;">Learning</button>
+                    <button id="btnTrendAi" class="btn-ghost" onclick="toggleAnalyticsView('ai')" style="padding:4px 10px; font-size:10px; border-radius:5px; font-family:var(--font-mono); margin:0;">AI Usage</button>
+                    <button id="btnTrendSessions" class="btn-ghost" onclick="toggleAnalyticsView('sessions')" style="padding:4px 10px; font-size:10px; border-radius:5px; font-family:var(--font-mono); margin:0;">Sessions</button>
+                  </div>
+                </div>
+                <div class="chart-wrapper flex-grow-1" style="min-height: 240px; position: relative;">
+                  <canvas id="executiveAnalyticsChart" height="240"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-xl-5">
+              <div class="glass-card h-100 p-4 d-flex flex-column" style="border-top: 3px solid var(--success);">
+                <div class="analytics-tab-headers d-flex gap-3 border-bottom border-glass-subtle pb-2 mb-3">
+                  <button id="btnTabHeatmap" class="btn-tab-header active" onclick="switchRightAnalyticsTab('heatmap')"><i class="fa-solid fa-calendar-days"></i> Focus Heatmap</button>
+                  <button id="btnTabGraph" class="btn-tab-header" onclick="switchRightAnalyticsTab('graph')"><i class="fa-solid fa-diagram-project"></i> Knowledge Graph</button>
+                </div>
+                <div id="rightTabHeatmapContent" class="right-tab-content active flex-grow-1 d-flex flex-column justify-content-center">
+                  <p class="sub-text mb-3" style="font-size:10.5px; color:var(--text-300);">Study consistency matrix over the past 30 days.</p>
+                  <div class="heatmap-wrap d-flex flex-column align-items-center justify-content-center">
+                    <div class="heatmap-grid" id="heatmapGrid" style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; width: 100%; max-width: 320px;"></div>
+                    <div class="heatmap-legend d-flex justify-content-between mt-3 w-100 small text-muted" style="max-width: 320px; font-family: var(--font-mono); font-size: 9px;">
+                      <span>Inactive</span>
+                      <div class="d-flex gap-1">
+                        <div style="width:8px; height:8px; background:rgba(255,255,255,0.05); border-radius:1px;"></div>
+                        <div style="width:8px; height:8px; background:rgba(6,182,212,0.2); border-radius:1px;"></div>
+                        <div style="width:8px; height:8px; background:rgba(6,182,212,0.5); border-radius:1px;"></div>
+                        <div style="width:8px; height:8px; background:var(--secondary); border-radius:1px; box-shadow:0 0 6px var(--secondary-glow);"></div>
+                      </div>
+                      <span>Active Block</span>
+                    </div>
+                  </div>
+                </div>
+                <div id="rightTabGraphContent" class="right-tab-content flex-grow-1 d-flex flex-column" style="display:none;">
+                  <p class="sub-text mb-2" style="font-size:10.5px; color:var(--text-300);">Topics, connections, and study frequencies.</p>
+                  <div class="knowledge-graph-svg-container d-flex align-items-center justify-content-center flex-grow-1" style="background: rgba(0,0,0,0.15); border-radius: 12px; border: 1px solid var(--border-glass); min-height: 180px; position: relative; overflow: hidden;">
+                    <svg id="knowledgeGraphSvg" width="100%" height="180" style="position: absolute; inset:0;"></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Activity Timeline & Progress -->
+          <div class="row g-4 mb-4">
+            <div class="col-12">
+              <div class="glass-card recent-card h-100 d-flex flex-column p-4" style="border-top: 3px solid var(--primary-lt);">
+                <div class="card-header-row d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                  <div class="d-flex align-items-center gap-3">
+                    <h3 class="chart-title mb-0" style="font-size: 14px;"><i class="fa-solid fa-clock-rotate-left"></i> Activity Timeline &amp; Progress</h3>
+                    <input type="text" id="timelineSearchInput" class="styled-input m-0" style="font-size: 10.5px; height: 26px; min-width: 220px; flex-grow: 1; max-width: 320px; padding: 4px 8px; background: rgba(var(--glass-rgb), 0.05); color: var(--text-200); border: 1px solid var(--border-glass);" placeholder="Search activity..." onkeyup="renderTimeline()">
+                  </div>
+                  <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <select id="timelineFilterType" class="styled-input" style="margin:0; padding:4px 8px; font-size:11px; min-width:160px; width:auto; height:28px; background: rgba(var(--glass-rgb), 0.05); color: var(--text-200); border: 1px solid var(--border-glass); border-radius: 6px;">
+                      <option value="ALL">All Events</option>
+                      <option value="TIMER">TIMER</option>
+                      <option value="CHAT">CHAT</option>
+                      <option value="NOTE">NOTE</option>
+                      <option value="DOCUMENT">DOCUMENT</option>
+                      <option value="RAG">RAG</option>
+                      <option value="LEARNING">LEARNING</option>
+                    </select>
+                    <select id="timelineSortOrder" class="styled-input" style="margin:0; padding:4px 8px; font-size:11px; min-width:160px; width:auto; height:28px; background: rgba(var(--glass-rgb), 0.05); color: var(--text-200); border: 1px solid var(--border-glass); border-radius: 6px;">
+                      <option value="DESC">Newest First</option>
+                      <option value="ASC">Oldest First</option>
+                      <option value="XP">Highest XP</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="timeline-feed-wrap flex-grow-1 position-relative mb-3" style="max-height: 290px; overflow-y: auto; padding-right: 4px;">
+                  <div class="timeline-line"></div>
+                  <div id="timelineContainer" class="d-flex flex-column gap-3">
+                    <div class="text-center p-4 text-muted small">Loading activity timeline...</div>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-auto pt-2 border-top" style="border-color: rgba(255,255,255,0.06); font-size: 11px; font-family: var(--font-mono);">
+                  <button class="btn-ghost" id="timelinePrevPage" style="padding:4px 8px;" disabled><i class="fa-solid fa-chevron-left"></i> Prev</button>
+                  <span class="text-muted" id="timelinePageIndicator">Page 1 of 1</span>
+                  <button class="btn-ghost" id="timelineNextPage" style="padding:4px 8px;" disabled>Next <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- System Intelligence Center -->
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="glass-card p-4" style="border-top: 3px solid var(--info);">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                  <h3 class="chart-title m-0" style="color:var(--info); font-size:14px; font-weight:700;"><i class="fa-solid fa-server"></i> System Intelligence Center</h3>
+                  <div class="d-flex align-items-center gap-2" style="font-size:11px; font-family:var(--font-mono);">
+                    <span class="status-dot-sm" id="sysConnectionDot" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--success); box-shadow:0 0 8px var(--success);"></span>
+                    <span id="sysConnectionLabel" class="text-muted">PostgreSQL Connected</span>
+                  </div>
+                </div>
+                <div class="row g-3">
+                  <div class="col-6 col-sm-4 col-md-3 col-xl">
+                    <div class="glass-inner-dark p-3 rounded text-center">
+                      <div style="font-size:18px; color:var(--purple); margin-bottom:4px;"><i class="fa-solid fa-comments"></i></div>
+                      <div class="fw-bold text-light" style="font-size:16px;" id="sysTotalConvs">0</div>
+                      <div class="text-muted" style="font-size:10px;">Conversations</div>
+                    </div>
+                  </div>
+                  <div class="col-6 col-sm-4 col-md-3 col-xl">
+                    <div class="glass-inner-dark p-3 rounded text-center">
+                      <div style="font-size:18px; color:var(--warning); margin-bottom:4px;"><i class="fa-solid fa-note-sticky"></i></div>
+                      <div class="fw-bold text-light" style="font-size:16px;" id="sysTotalNotes">0</div>
+                      <div class="text-muted" style="font-size:10px;">Total Notes</div>
+                    </div>
+                  </div>
+                  <div class="col-6 col-sm-4 col-md-3 col-xl">
+                    <div class="glass-inner-dark p-3 rounded text-center">
+                      <div style="font-size:18px; color:var(--info); margin-bottom:4px;"><i class="fa-solid fa-file-pdf"></i></div>
+                      <div class="fw-bold text-light" style="font-size:16px;" id="sysTotalDocs">0</div>
+                      <div class="text-muted" style="font-size:10px;">Documents</div>
+                    </div>
+                  </div>
+                  <div class="col-6 col-sm-4 col-md-3 col-xl">
+                    <div class="glass-inner-dark p-3 rounded text-center">
+                      <div style="font-size:18px; color:var(--danger); margin-bottom:4px;"><i class="fa-solid fa-graduation-cap"></i></div>
+                      <div class="fw-bold text-light" style="font-size:16px;" id="sysTotalSessions">0</div>
+                      <div class="text-muted" style="font-size:10px;">Sessions</div>
+                    </div>
+                  </div>
+                  <div class="col-6 col-sm-4 col-md-3 col-xl">
+                    <div class="glass-inner-dark p-3 rounded text-center">
+                      <div style="font-size:18px; color:var(--cyan); margin-bottom:4px;"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                      <div class="fw-bold text-light" style="font-size:16px;" id="sysAiRequests">0</div>
+                      <div class="text-muted" style="font-size:10px;">AI Requests</div>
+                    </div>
+                  </div>
+                  <div class="col-6 col-sm-4 col-md-3 col-xl">
+                    <div class="glass-inner-dark p-3 rounded text-center">
+                      <div style="font-size:18px; color:var(--success); margin-bottom:4px;"><i class="fa-solid fa-table"></i></div>
+                      <div class="fw-bold text-light" style="font-size:16px;" id="sysDbStats">0</div>
+                      <div class="text-muted" style="font-size:10px;">DB Tables</div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-sm-12 col-md-6 col-xl">
+                    <div class="glass-inner-dark p-3 rounded text-center">
+                      <div style="font-size:18px; color:var(--primary-lt); margin-bottom:4px;"><i class="fa-solid fa-chart-simple"></i></div>
+                      <div class="fw-bold text-light" style="font-size:16px;" id="sysActivityMetrics">0</div>
+                      <div class="text-muted" style="font-size:10px;">Total Activity Logs</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- end hub-overview tab -->
+
+        <!-- ══ HUB TAB 2: ACTIVITY INTELLIGENCE ══ -->
+        <div class="intel-tab-content hub-tab-content" id="hub-activity-intel">
+          <!-- Date and Filter Bar -->
+          <div class="glass-card mb-4 p-3 d-flex align-items-center justify-content-between flex-wrap gap-3" style="border-top:1px solid rgba(255,255,255,0.05);">
+            <div class="d-flex align-items-center gap-2 flex-wrap" style="flex: 1;">
+              <select id="intelCategoryFilter" class="styled-input m-0" style="min-width:180px; width:auto; height:36px; padding:6px 12px; font-size:12px; background: rgba(var(--glass-rgb), 0.03);">
+                <option value="">All Categories</option>
+                <option value="AUTH">Authentication</option>
+                <option value="CHAT">AI Chats</option>
+                <option value="DOCUMENT">Documents &amp; Web</option>
+                <option value="RAG">RAG Queries</option>
+                <option value="NOTE">Neural Notes</option>
+                <option value="TIMER">Focus Sessions</option>
+                <option value="LEARNING">Hub Activity</option>
+                <option value="DASHBOARD">Interactions</option>
+              </select>
+              <select id="intelTimeFilter" class="styled-input m-0" style="min-width:160px; width:auto; height:36px; padding:6px 12px; font-size:12px; background: rgba(var(--glass-rgb), 0.03);">
+                <option value="today">Today</option>
+                <option value="yesterday">Yesterday</option>
+                <option value="week">Last 7 Days</option>
+                <option value="month">Last 30 Days</option>
+              </select>
+              <div style="position:relative; width:220px;">
+                <input type="text" id="intelSearchQuery" class="styled-input m-0" style="height:36px; padding:6px 12px 6px 32px; font-size:12px; background: rgba(var(--glass-rgb), 0.03);" placeholder="Search history description...">
+                <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-400); font-size:11px;"></i>
+              </div>
+              <button id="intelSearchBtn" class="btn-primary" style="height:36px; padding:0 16px; font-size:12px;"><i class="fa-solid fa-filter"></i> Apply Filter</button>
+            </div>
+            <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-300); display:flex; align-items:center; gap:8px;">
+              <span class="status-badge online" style="font-size: 10px; padding:4px 10px;"><i class="fa-solid fa-circle-nodes"></i> PostgreSQL Stored</span>
+            </div>
+          </div>
+
+          <!-- Real-Time Metrics KPI Grid -->
+          <div class="row g-4 mb-4">
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="kpi-card glass-card kpi-cyan w-100" style="padding: 20px;">
+                <div class="kpi-icon-wrap"><i class="fa-solid fa-bolt"></i></div>
+                <div><p class="kpi-label">Today's Logs</p><p class="kpi-value" id="intelTodayCount">0</p></div>
+                <div class="kpi-glow"></div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="kpi-card glass-card kpi-purple w-100" style="padding: 20px;">
+                <div class="kpi-icon-wrap"><i class="fa-solid fa-clock"></i></div>
+                <div><p class="kpi-label">Focus Time Today</p><p class="kpi-value" id="intelFocusTime">0<span style="font-size:12px; font-weight:normal; color:var(--text-400);">m</span></p></div>
+                <div class="kpi-glow"></div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="kpi-card glass-card kpi-green w-100" style="padding: 20px;">
+                <div class="kpi-icon-wrap"><i class="fa-solid fa-robot"></i></div>
+                <div><p class="kpi-label">Total AI Requests</p><p class="kpi-value" id="intelAiRequests">0</p></div>
+                <div class="kpi-glow"></div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="kpi-card glass-card kpi-pink w-100" style="padding: 20px;">
+                <div class="kpi-icon-wrap"><i class="fa-solid fa-gauge-high"></i></div>
+                <div><p class="kpi-label">Productivity Score</p><p class="kpi-value" id="intelProductivityScore">0%</p></div>
+                <div class="kpi-glow"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-4">
+            <!-- LEFT: Real-Time Activity Timeline -->
+            <div class="col-12 col-lg-8">
+              <div class="glass-card" style="padding:24px; min-height: 520px; display: flex; flex-direction: column;">
+                <h3 class="chart-title mb-4" style="font-size:15px;"><i class="fa-solid fa-route" style="color:var(--primary-lt)"></i> System Audit Timeline</h3>
+                <div style="flex:1; max-height:460px; overflow-y:auto; padding-right:8px;" class="timeline-wrap">
+                  <div class="activity-timeline" id="intelTimeline">
+                    <div style="text-align:center; padding:40px; color:var(--text-400); font-size:12px;">
+                      <i class="fa-solid fa-circle-notch fa-spin" style="font-size:24px; margin-bottom:12px;"></i><br>
+                      Loading PostgreSQL Activity Records...
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT: Database Status, Distribution, Recall -->
+            <div class="col-12 col-lg-4">
+              <!-- DB Stats Panel -->
+              <div class="glass-card mb-4" style="padding:20px;">
+                <h3 class="chart-title mb-3" style="font-size:13px; text-transform:uppercase;"><i class="fa-solid fa-shield-halved" style="color:var(--success)"></i> Postgres Status</h3>
+                <div style="display:flex; flex-direction:column; gap:12px; font-size:11px; font-family:var(--font-mono); color:var(--text-300);">
+                  <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:6px;"><span>Active Core DB:</span><span style="color:var(--success); font-weight:bold;">POSTGRESQL</span></div>
+                  <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:6px;"><span>Total Index Chunks:</span><span id="intelHealthChunks" style="color:var(--primary-lt); font-weight:bold;">0</span></div>
+                  <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.03); padding-bottom:6px;"><span>Unique Documents:</span><span id="intelHealthDocs" style="color:var(--secondary); font-weight:bold;">0</span></div>
+                  <div style="display:flex; justify-content:space-between;"><span>Active Schema:</span><span style="color:var(--warning);">public</span></div>
+                </div>
+              </div>
+
+              <!-- Distribution chart -->
+              <div class="glass-card mb-4" style="padding:20px;">
+                <h3 class="chart-title mb-3" style="font-size:13px; text-transform:uppercase;"><i class="fa-solid fa-chart-pie" style="color:var(--secondary)"></i> Activity Distribution</h3>
+                <div style="height:150px; display:flex; align-items:center; justify-content:center;">
+                  <canvas id="intelDistributionChart"></canvas>
+                </div>
+              </div>
+
+              <!-- Quick action recall -->
+              <div class="glass-card" style="padding:20px;">
+                <h3 class="chart-title mb-3" style="font-size:13px; text-transform:uppercase;"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent-primary)"></i> Activity Recall</h3>
+                <p class="sub-text mb-3" style="font-size:11px; line-height:1.5;">Ask the assistant in chat: <em>"What did I do yesterday?"</em> or <em>"Show Spring Boot conversations"</em>. The AI parses Postgres logs and summaries user history.</p>
+                <button class="btn-primary w-100 justify-content-center" onclick="switchView('view-ai'); setTimeout(() => { const inp = document.getElementById('aiInput'); if (inp) { inp.value = 'What did I work on yesterday?'; inp.dispatchEvent(new Event('input')); } }, 300);"><i class="fa-solid fa-robot"></i> Open AI Recall</button>
+              </div>
+            </div>
+          </div>
+        </div><!-- end hub-activity-intel tab -->
+
+        <!-- ══ HUB TAB 3: PRODUCTIVITY HISTORY ══ -->
+        <div class="intel-tab-content hub-tab-content" id="hub-history">
+          <div class="row g-4 mb-4">
+            <div class="col-12 col-md-6 col-xl-4">
+              <div class="glass-card p-4 h-100 d-flex flex-column align-items-center justify-content-center" style="border-top: 3px solid var(--success);">
+                <h3 class="chart-title align-self-start mb-3"><i class="fa-solid fa-crosshairs"></i> Focus Score</h3>
+                <div id="historyFocusScoreCircle" style="position:relative; width:160px; height:160px; border-radius:50%; background:conic-gradient(var(--success) 0% 0%, rgba(255,255,255,0.05) 0% 100%); display:flex; align-items:center; justify-content:center; box-shadow: 0 0 40px rgba(0, 255, 157, 0.2);">
+                  <div style="background:var(--bg-surface); width:130px; height:130px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                    <h2 class="m-0" style="color:var(--success); font-weight:800; font-size:2.5rem; text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);"><span id="historyFocusScoreText">0</span><span style="font-size:1rem">%</span></h2>
+                    <small class="text-muted fw-bold" id="historyFocusScoreRating">Good</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-4">
+              <div class="glass-card p-4 h-100" style="border-top: 3px solid var(--primary-lt);">
+                <h3 class="chart-title mb-3"><i class="fa-solid fa-chart-pie"></i> Distribution</h3>
+                <div style="height: 160px; display:flex; align-items:center; justify-content:center;">
+                  <canvas id="distributionPieChart"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-xl-4">
+              <div class="glass-card p-4 h-100" style="border-top: 3px solid var(--secondary);">
+                <h3 class="chart-title mb-3"><i class="fa-solid fa-bolt"></i> Consistency Tracker</h3>
+                <div class="d-flex flex-column gap-3">
+                  <div>
+                    <div class="d-flex justify-content-between small mb-1"><span style="color: var(--text-200);">Current Streak</span><span class="fw-bold" style="color:var(--warning)" id="historyCurrentStreakText">0 Days</span></div>
+                    <div class="progress" style="height:6px; background:var(--bg-glass-hover)"><div class="progress-bar bg-warning" id="historyCurrentStreakProgress" style="width: 0%"></div></div>
+                  </div>
+                  <div>
+                    <div class="d-flex justify-content-between small mb-1"><span style="color: var(--text-200);">Daily Goal Completion</span><span class="fw-bold" style="color:var(--success)" id="historyGoalCompletionText">0%</span></div>
+                    <div class="progress" style="height:6px; background:var(--bg-glass-hover)"><div class="progress-bar bg-success" id="historyGoalCompletionProgress" style="width: 0%"></div></div>
+                  </div>
+                  <div>
+                    <div class="d-flex justify-content-between small mb-1"><span style="color: var(--text-200);">Deep Work Hours</span><span class="fw-bold" style="color:var(--primary-lt)" id="historyDeepWorkHoursText">0h 0m</span></div>
+                    <div class="progress" style="height:6px; background:var(--bg-glass-hover)"><div class="progress-bar" id="historyDeepWorkHoursProgress" style="background:var(--primary-lt); width: 0%"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="glass-card chart-card chart-full mb-4">
+            <h3 class="chart-title"><i class="fa-solid fa-chart-line"></i> Focus Time — Last 30 Days <span class="chart-unit">(minutes)</span></h3>
+            <canvas id="historyLineChart" height="200"></canvas>
+          </div>
+          <div class="charts-row mb-4">
+            <div class="glass-card chart-card">
+              <h3 class="chart-title"><i class="fa-solid fa-calendar-days"></i> Activity Heatmap</h3>
+              <div class="heatmap-grid" id="heatmapGridHistory"></div>
+              <div class="heatmap-legend"><span>Less</span><div class="h-sw" style="--c:rgba(99,102,241,0.1)"></div><div class="h-sw" style="--c:rgba(99,102,241,0.3)"></div><div class="h-sw" style="--c:rgba(99,102,241,0.6)"></div><div class="h-sw" style="--c:#6366f1"></div><span>More</span></div>
+            </div>
+          </div>
+          <div class="glass-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <h3 class="chart-title" style="margin:0"><i class="fa-solid fa-table"></i> All Sessions</h3>
+              <a href="/api/history/export" class="btn-ghost" style="padding:6px 12px; font-size:11px;"><i class="fa-solid fa-download"></i> Export CSV</a>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table" id="historyTable">
+                <thead><tr><th>Date &amp; Time</th><th>Activity</th><th>Duration</th><th>XP</th><th>🍅</th><th>Notes</th></tr></thead>
+                <tbody id="historyTableBody"><tr><td colspan="6" class="empty-row">No history yet.</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div><!-- end hub-history tab -->
+
+        <!-- ══ HUB TAB 4: DATABASE INSPECTOR ══ -->
+        <div class="intel-tab-content hub-tab-content" id="hub-database">
+          <!-- Stored metrics -->
+          <div class="row g-4 mb-4">
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="kpi-card glass-card kpi-cyan w-100" style="padding: 20px;">
+                <div class="kpi-icon-wrap"><i class="fa-solid fa-users"></i></div>
+                <div><p class="kpi-label">Stored Users</p><p class="kpi-value" id="dbMetricUsers">0</p></div>
+                <div class="kpi-glow"></div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="kpi-card glass-card kpi-purple w-100" style="padding: 20px;">
+                <div class="kpi-icon-wrap"><i class="fa-solid fa-comments"></i></div>
+                <div><p class="kpi-label">Stored Conversations</p><p class="kpi-value" id="dbMetricConvs">0</p></div>
+                <div class="kpi-glow"></div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="kpi-card glass-card kpi-green w-100" style="padding: 20px;">
+                <div class="kpi-icon-wrap"><i class="fa-solid fa-database"></i></div>
+                <div><p class="kpi-label">Total RAG Chunks</p><p class="kpi-value" id="dbMetricChunks">0</p></div>
+                <div class="kpi-glow"></div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="kpi-card glass-card kpi-pink w-100" style="padding: 20px;">
+                <div class="kpi-icon-wrap"><i class="fa-solid fa-network-wired"></i></div>
+                <div><p class="kpi-label">Table Count</p><p class="kpi-value" id="dbMetricTables">0</p></div>
+                <div class="kpi-glow"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-4">
+            <!-- Table inspector -->
+            <div class="col-12 col-lg-8">
+              <div class="glass-card" style="padding:24px; min-height: 480px; display: flex; flex-direction: column;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap: wrap; gap: 10px;">
+                  <h3 class="chart-title" style="margin:0"><i class="fa-solid fa-table"></i> Table Record Inspector</h3>
+                  <div style="display:flex; gap:10px; align-items:center;">
+                    <select id="dbInspectorTableSelect" class="styled-input" style="min-width:240px; width:auto; margin:0; padding:6px 12px; height: 36px; background: rgba(var(--glass-rgb), 0.05); color: var(--text-200); border: 1px solid var(--border-glass); border-radius: 8px;">
+                      <option value="users">users</option>
+                      <option value="ai_conversations">ai_conversations</option>
+                      <option value="page_chunks">page_chunks</option>
+                      <option value="sessions">sessions</option>
+                      <option value="notes">notes</option>
+                      <option value="website_visits">website_visits</option>
+                      <option value="activities">activities</option>
+                      <option value="daily_totals">daily_totals</option>
+                      <option value="gamification_data">gamification_data</option>
+                      <option value="activity_log">activity_log</option>
+                      <option value="user_activity_history">user_activity_history</option>
+                    </select>
+                    <button id="dbInspectorRefreshBtn" class="btn-primary" style="padding:6px 14px; height: 36px;"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
+                  </div>
+                </div>
+                <div class="table-wrap" style="flex:1; max-height: 400px; overflow-y: auto;">
+                  <table class="data-table" id="dbInspectorTable" style="width:100%; border-collapse:collapse;">
+                    <thead id="dbInspectorHead"></thead>
+                    <tbody id="dbInspectorBody"><tr><td class="empty-row" style="text-align:center; padding:30px; color:var(--text-400);">Select a table to begin inspection.</td></tr></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Write test & system meta -->
+            <div class="col-12 col-lg-4">
+              <div class="glass-card" style="padding:24px; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; min-height:480px;">
+                <div>
+                  <h3 class="chart-title" style="margin-bottom:12px"><i class="fa-solid fa-vial"></i> Live Database Write Test</h3>
+                  <p class="sub-text" style="margin-bottom: 20px;">Submit a real-time record write to verify immediate PostgreSQL persistence.</p>
+                  <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="dbTestNoteTitle">Test Note Title</label>
+                    <input type="text" id="dbTestNoteTitle" class="styled-input" placeholder="e.g. FocusAI System Test" value="PostgreSQL Persistence Test">
+                  </div>
+                  <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="dbTestNoteContent">Test Note Content</label>
+                    <textarea id="dbTestNoteContent" class="styled-textarea" rows="3" placeholder="Verify database operations...">Neural Link Connection Verified. Storing session audit record in target PostgreSQL instance.</textarea>
+                  </div>
+                  <button id="dbTestWriteBtn" class="btn-primary" style="width:100%; justify-content:center;"><i class="fa-solid fa-database"></i> Execute Save &amp; Refresh</button>
+                </div>
+
+                <div class="connection-status-panel" style="background: rgba(var(--glass-rgb), 0.02); border: 1px solid var(--border-glass); border-radius: 12px; padding: 16px;">
+                  <h4 style="font-size: 12px; color: var(--text-200); font-family: var(--font-mono); margin-bottom: 12px; text-transform: uppercase;">System Metadata</h4>
+                  <div style="display:flex; flex-direction:column; gap:8px; font-size:11px; font-family:var(--font-mono); color:var(--text-300);">
+                    <div style="display:flex; justify-content:space-between;"><span style="opacity:0.5;">Active DB:</span><span id="dbMetaName">-</span></div>
+                    <div style="display:flex; justify-content:space-between;"><span style="opacity:0.5;">Target URL:</span><span id="dbMetaUrl" style="word-break: break-all; white-space: normal;">-</span></div>
+                    <div style="display:flex; justify-content:space-between;"><span style="opacity:0.5;">Sys Status:</span><span id="dbMetaStatus" style="color:var(--success);">Connected</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!-- end hub-database tab -->
+
+      </section>
+
+      <!-- ═════════════════ TIMER VIEW (DEEP WORK MANAGEMENT SYSTEM) ═════════════════ -->
+      <section class="view container-fluid" id="view-timer">
+        <div class="view-header mb-4">
+          <div>
+            <h1 class="view-title">Deep Work Management System</h1>
+            <p class="view-subtitle">Enter flow state, track structured activities, and view intelligence metrics.</p>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- Left Column: Activity Workspace Redesign -->
+          <div class="col-12 col-xl-4 col-lg-5 d-flex flex-column gap-3">
+            
+            <!-- Section 1: Quick Create Activity -->
+            <div class="glass-card" style="padding: 20px;">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="chart-title m-0" style="font-size: 14px;" id="createActivityFormTitle"><i class="fa-solid fa-plus-circle text-primary-lt"></i> Create Activity</h3>
+              </div>
+              <div class="d-flex flex-column gap-2">
+                <input type="text" id="actName" class="styled-input m-0" style="font-size: 12px; height: 34px;" placeholder="Activity Name (e.g. Refactor API)">
+                
+                <div class="row g-2">
+                  <div class="col-7">
+                    <select id="actCategory" class="styled-input m-0" style="font-size: 12px; height: 34px;">
+                      <option value="CODING">Coding</option>
+                      <option value="LEARNING">Learning</option>
+                      <option value="READING">Reading</option>
+                      <option value="RESEARCH">Research</option>
+                      <option value="WRITING">Writing</option>
+                      <option value="MEETINGS">Meetings</option>
+                      <option value="EXERCISE">Exercise</option>
+                      <option value="CUSTOM" selected>Custom</option>
+                    </select>
+                  </div>
+                  <div class="col-5">
+                    <input type="number" id="actDuration" class="styled-input m-0" style="font-size: 12px; height: 34px;" placeholder="Est. Mins" min="5" max="300" value="25">
+                  </div>
+                </div>
+
+                <!-- More Options Trigger -->
+                <div class="text-start mt-1">
+                  <button class="btn btn-link btn-xs p-0 text-decoration-none text-muted" type="button" data-bs-toggle="collapse" data-bs-target="#addActivityCollapse" aria-expanded="false" aria-controls="addActivityCollapse" style="font-size: 11px;">
+                    <i class="fa-solid fa-sliders"></i> Advanced Options...
+                  </button>
+                </div>
+
+                <!-- Advanced Options Collapse -->
+                <div class="collapse" id="addActivityCollapse">
+                  <div class="d-flex flex-column gap-2 p-2 mt-2 rounded bg-black bg-opacity-20" style="border: 1px solid var(--border-glass);">
+                    <div class="row g-2">
+                      <div class="col-6">
+                        <label style="font-size:9px; color:var(--text-200); text-transform:uppercase;">Priority</label>
+                        <select id="actPriority" class="styled-input m-0" style="font-size: 11px; height: 30px;">
+                          <option value="LOW">Low</option>
+                          <option value="MEDIUM" selected>Medium</option>
+                          <option value="HIGH">High</option>
+                        </select>
+                      </div>
+                      <div class="col-6">
+                        <label style="font-size:9px; color:var(--text-200); text-transform:uppercase;">Difficulty</label>
+                        <select id="actDifficulty" class="styled-input m-0" style="font-size: 11px; height: 30px;">
+                          <option value="EASY">Easy</option>
+                          <option value="MEDIUM" selected>Medium</option>
+                          <option value="HARD">Hard</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="row g-2">
+                      <div class="col-6">
+                        <label style="font-size:9px; color:var(--text-200); text-transform:uppercase;">Icon</label>
+                        <select id="actIcon" class="styled-input m-0" style="font-size: 11px; height: 30px;">
+                          <option value="fa-code">💻 Code</option>
+                          <option value="fa-graduation-cap">🎓 Grad</option>
+                          <option value="fa-book-open">📖 Book</option>
+                          <option value="fa-magnifying-glass">🔍 Search</option>
+                          <option value="fa-pen-nib">✍️ Pen</option>
+                          <option value="fa-handshake">🤝 Meeting</option>
+                          <option value="fa-dumbbell">💪 Exercise</option>
+                          <option value="fa-briefcase" selected>💼 Briefcase</option>
+                        </select>
+                      </div>
+                      <div class="col-6">
+                        <label style="font-size:9px; color:var(--text-200); text-transform:uppercase;">Color</label>
+                        <input type="color" id="actColor" class="color-picker" value="#6366f1" style="height: 30px; width: 100%; border-radius: 4px; padding: 2px;">
+                      </div>
+                    </div>
+
+                    <div class="d-flex flex-column">
+                      <label style="font-size:9px; color:var(--text-200); text-transform:uppercase;">Tags</label>
+                      <input type="text" id="actTags" class="styled-input m-0" style="font-size: 11px; height: 30px;" placeholder="Tags (comma separated, e.g. ui, core)">
+                    </div>
+                  </div>
+                </div>
+
+                <button class="btn btn-primary btn-sm w-100 justify-content-center mt-2" id="createActivitySubmitBtn" onclick="handleCreateActivity()"><i class="fa-solid fa-check"></i> Create Activity</button>
+              </div>
+            </div>
+
+            <!-- Section 2 & 3: Activity Management & Active Sessions list -->
+            <div class="glass-card flex-grow-1 d-flex flex-column" style="padding: 20px; min-height: 520px;">
+              <h3 class="chart-title mb-3" style="font-size: 14px;"><i class="fa-solid fa-laptop-code text-info"></i> Activity Workspace</h3>
+              
+              <!-- Unified Activity Management Toolbar -->
+              <div class="d-flex flex-column gap-2 mb-3">
+                <div class="d-flex gap-2 align-items-center">
+                  <div class="position-relative flex-grow-1">
+                    <input type="text" id="workspaceSearchInput" class="styled-input m-0" style="font-size: 11px; height: 32px; padding-left: 28px;" placeholder="Search activities...">
+                    <i class="fa-solid fa-magnifying-glass position-absolute text-muted" style="left: 10px; top: 10px; font-size: 11px;"></i>
+                  </div>
+                  <button type="button" id="workspaceFavoriteFilterBtn" class="btn btn-sm btn-ghost p-0 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border: 1px solid var(--border-glass); border-radius: 6px; color: var(--text-300);" onclick="toggleFavoriteFilter()" title="Show Favorites Only">
+                    <i class="fa-solid fa-star" id="favoriteFilterStarIcon"></i>
+                  </button>
+                </div>
+                
+                <div class="row g-2">
+                  <div class="col-6">
+                    <select id="workspaceCategoryFilter" class="styled-input m-0" style="font-size: 11px; height: 30px;">
+                      <option value="">All Categories</option>
+                      <option value="CODING">Coding</option>
+                      <option value="LEARNING">Learning</option>
+                      <option value="READING">Reading</option>
+                      <option value="RESEARCH">Research</option>
+                      <option value="WRITING">Writing</option>
+                      <option value="MEETINGS">Meetings</option>
+                      <option value="EXERCISE">Exercise</option>
+                      <option value="CUSTOM">Custom</option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <select id="workspaceSortOptions" class="styled-input m-0" style="font-size: 11px; height: 30px;">
+                      <option value="recent" selected>Sort by: Recent</option>
+                      <option value="name">Sort by: Name</option>
+                      <option value="duration">Sort by: Duration</option>
+                      <option value="priority">Sort by: Priority</option>
+                      <option value="xp">Sort by: XP Reward</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Scrollable Workspace List -->
+              <div class="activity-workspace-list flex-grow-1" id="workspaceActivitiesList" style="max-height: 520px; overflow-y: auto; padding-right: 4px;">
+                <div class="text-center p-4 text-muted small">Loading Activity Workspace...</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Focus Session Card & Controls -->
+          <div class="col-12 col-xl-8 col-lg-7">
+            <div class="glass-card h-100 timer-arena-premium position-relative" id="focusSessionCard" style="padding: 24px;">
+              <!-- Deep Work Mode red overlay glow -->
+              <div class="deep-work-overlay" id="deepWorkOverlay"></div>
+
+              <div class="d-flex justify-content-between align-items-start mb-3" style="position: relative; z-index: 10;">
+                <div>
+                  <span class="badge" id="activeTaskCategory" style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); color: var(--primary-lt); font-size: 9px; font-family: var(--font-mono); letter-spacing: 0.5px; text-transform: uppercase;">Category: None</span>
+                  <h2 class="m-0 mt-1" id="activeTaskName" style="font-size: 20px; font-weight: 700; color: var(--text-100);">No Session Active</h2>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <!-- Deep Work Toggle -->
+                  <label class="d-flex align-items-center gap-2" style="cursor: pointer; user-select: none;">
+                    <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-300);">DEEP WORK</span>
+                    <div class="form-check form-switch m-0" style="padding-left: 2.5em;">
+                      <input class="form-check-input" type="checkbox" role="switch" id="deepWorkModeToggle" style="cursor: pointer; background-color: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25);">
+                    </div>
+                  </label>
+                  <button id="popoutBtn" class="btn-icon-sm" style="opacity:0.4" title="Pop out timer" onclick="popOutTimer()"><i class="fa-solid fa-up-right-from-square"></i></button>
+                </div>
+              </div>
+
+              <!-- Main Progress Ring -->
+              <div class="d-flex flex-column align-items-center justify-content-center my-4" style="position: relative; z-index: 10;">
+                <div class="timer-ring-wrapper">
+                  <svg class="timer-ring-svg" viewBox="0 0 220 220">
+                    <defs>
+                      <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#6366f1"/>
+                        <stop offset="100%" stop-color="#06b6d4"/>
+                      </linearGradient>
+                    </defs>
+                    <circle class="ring-bg" cx="110" cy="110" r="95"/>
+                    <circle class="ring-progress" id="timerRingProgress" cx="110" cy="110" r="95"
+                            stroke-dasharray="596.9" stroke-dashoffset="596.9"/>
+                  </svg>
+                  <div class="timer-face">
+                    <div class="timer-time" id="timerDisplay">00:00:00</div>
+                    <div class="timer-status mt-1" id="timerStatus">
+                      <span class="status-dot-sm"></span> Ready
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Session State Telemetry Stats -->
+              <div class="row g-2 text-center mb-4" style="position: relative; z-index: 10;">
+                <div class="col-4">
+                  <div class="p-2 rounded bg-black bg-opacity-25" style="border: 1px solid rgba(255,255,255,0.02);">
+                    <small class="text-muted d-block" style="font-size: 8px; text-transform: uppercase;">Focus Score</small>
+                    <span class="fw-bold text-success" id="liveFocusScore" style="font-size: 13px; font-family: var(--font-mono);">100%</span>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="p-2 rounded bg-black bg-opacity-25" style="border: 1px solid rgba(255,255,255,0.02);">
+                    <small class="text-muted d-block" style="font-size: 8px; text-transform: uppercase;">Session Goal</small>
+                    <span class="fw-bold text-light" id="liveSessionGoalText" style="font-size: 13px; font-family: var(--font-mono);">25m</span>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="p-2 rounded bg-black bg-opacity-25" style="border: 1px solid rgba(255,255,255,0.02);">
+                    <small class="text-muted d-block" style="font-size: 8px; text-transform: uppercase;">XP Earned</small>
+                    <span class="fw-bold text-success" id="timerSessionXp" style="font-size: 13px; font-family: var(--font-mono);">+0 XP</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Hidden Telemetry Elements for app.js Compatibility -->
+              <div style="display: none;">
+                <span id="liveProductivityRating">Optimal</span>
+                <span id="liveDeepWorkStatus">Disabled</span>
+                <span id="liveRemainingTime">25:00</span>
+                <span id="estCompletionTime">-:--</span>
+                <span id="livePausesCount">0</span>
+              </div>
+
+              <!-- Inline target duration setting + controls -->
+              <div class="timer-controls" style="position: relative; z-index: 10;">
+                <div class="d-flex align-items-center justify-content-center gap-3 mb-3" id="targetDurationSelection">
+                  <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-300);">Session Duration:</span>
+                  <select id="sessionTargetDuration" class="styled-select" style="width: auto; padding: 4px 24px 4px 12px; font-size: 12px; height: 28px; background: rgba(var(--glass-rgb), 0.05); color: var(--text-200); border: 1px solid var(--border-glass); border-radius: 6px;">
+                    <option value="600">10 Minutes (Quick Sprint)</option>
+                    <option value="1500" selected>25 Minutes (Standard Pomo)</option>
+                    <option value="2700">45 Minutes (Deep Cycle)</option>
+                    <option value="3600">60 Minutes (Deep Hour)</option>
+                    <option value="5400">90 Minutes (Extreme Flow)</option>
+                  </select>
+                </div>
+
+                <div class="timer-btns d-flex justify-content-center gap-3 flex-wrap">
+                  <button id="startBtn" class="btn-primary btn-xl btn-glow" onclick="startSession()">
+                    <i class="fa-solid fa-play"></i> Start Session
+                  </button>
+                  <button id="pauseBtn" class="btn-warning btn-xl hidden" onclick="pauseSession()">
+                    <i class="fa-solid fa-pause"></i> Pause
+                  </button>
+                  <button id="resumeBtn" class="btn-cyan btn-xl hidden" onclick="resumeSession()">
+                    <i class="fa-solid fa-play"></i> Resume
+                  </button>
+                  <button id="stopBtn" class="btn-ghost btn-xl hidden text-danger border border-danger border-opacity-25" style="background: rgba(220,53,69,0.05);" onclick="stopSessionEarly()">
+                    <i class="fa-solid fa-circle-stop"></i> Stop Session
+                  </button>
+                  <button id="endBtn" class="btn-success btn-xl hidden" onclick="endSession()">
+                    <i class="fa-solid fa-circle-check"></i> Complete Session
+                </div>
+
+                <!-- Confirm Panel -->
+                <div class="confirm-panel glass-inner hidden mt-3" id="confirmPanel" style="padding: 16px; border-radius: 12px;">
+                  <h4 style="font-size: 14px; font-family: var(--font-mono); color: var(--text-100); margin-bottom: 12px;"><i class="fa-solid fa-floppy-disk text-success"></i> Log Completed Session</h4>
+                  <div class="d-flex flex-column gap-3">
+                    <label class="toggle-row d-flex align-items-center justify-content-between">
+                      <div class="d-flex align-items-center gap-2">
+                        <input type="checkbox" id="isPomodoro" class="toggle-input">
+                        <span class="toggle-slider"></span>
+                        <span style="font-size: 12px; color: var(--text-200);">Full Pomodoro cycle?</span>
+                      </div>
+                      <span class="xp-bonus-tag text-success font-monospace" style="font-size: 11px; font-weight: bold;">+50 XP BONUS</span>
+                    </label>
+                    <textarea id="sessionNotes" class="styled-textarea m-0" placeholder="Consolidate learnings (e.g. Completed feature-timer logic and updated DDL schemas)..." rows="2" style="font-size: 12px;"></textarea>
+                    <div class="confirm-btns d-flex justify-content-end gap-2">
+                      <button id="cancelEndBtn" class="btn-ghost btn-sm" onclick="cancelEnd()">Cancel</button>
+                      <button id="confirmEndBtn" class="btn-primary btn-sm" onclick="confirmEnd()"><i class="fa-solid fa-check"></i> Save & Log XP</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Session Analytics & AI Recommendations -->
+        <div class="row g-4 mt-2">
+          <!-- Session Analytics Panel -->
+          <div class="col-12 col-lg-7">
+            <div class="glass-card h-100" style="padding: 24px;">
+              <h3 class="chart-title mb-4" style="font-size: 15px;"><i class="fa-solid fa-chart-line text-primary-lt"></i> Deep Work Telemetry</h3>
+              
+              <!-- Mini KPI cards -->
+              <div class="row g-3 mb-4">
+                <div class="col-6 col-sm-3">
+                  <div class="glass-inner-dark p-2 rounded text-center h-100 d-flex flex-column justify-content-center">
+                    <div class="text-muted" style="font-size: 8px; text-transform: uppercase; font-family: var(--font-mono);">Today's Focus</div>
+                    <div class="fw-bold text-light mt-1" style="font-size: 14px;" id="analyticsTotalToday">0h 0m</div>
+                  </div>
+                </div>
+                <div class="col-6 col-sm-3">
+                  <div class="glass-inner-dark p-2 rounded text-center h-100 d-flex flex-column justify-content-center">
+                    <div class="text-muted" style="font-size: 8px; text-transform: uppercase; font-family: var(--font-mono);">Weekly Hours</div>
+                    <div class="fw-bold text-light mt-1" style="font-size: 14px;" id="analyticsWeeklyHours">0.0h</div>
+                  </div>
+                </div>
+                <div class="col-6 col-sm-3">
+                  <div class="glass-inner-dark p-2 rounded text-center h-100 d-flex flex-column justify-content-center">
+                    <div class="text-muted" style="font-size: 8px; text-transform: uppercase; font-family: var(--font-mono);">Monthly Focus</div>
+                    <div class="fw-bold text-light mt-1" style="font-size: 14px;" id="analyticsMonthlyProductivity">0m</div>
+                  </div>
+                </div>
+                <div class="col-6 col-sm-3">
+                  <div class="glass-inner-dark p-2 rounded text-center h-100 d-flex flex-column justify-content-center">
+                    <div class="text-muted" style="font-size: 8px; text-transform: uppercase; font-family: var(--font-mono);">Completed</div>
+                    <div class="fw-bold text-light mt-1" style="font-size: 14px;" id="analyticsCompletedSessions">0 sessions</div>
+                  </div>
+                </div>
+                <div class="col-6 col-sm-3">
+                  <div class="glass-inner-dark p-2 rounded text-center h-100 d-flex flex-column justify-content-center">
+                    <div class="text-muted" style="font-size: 8px; text-transform: uppercase; font-family: var(--font-mono);">Best Streak</div>
+                    <div class="fw-bold text-light mt-1" style="font-size: 14px;" id="analyticsBestStreak">0 days</div>
+                  </div>
+                </div>
+                <div class="col-6 col-sm-3">
+                  <div class="glass-inner-dark p-2 rounded text-center h-100 d-flex flex-column justify-content-center">
+                    <div class="text-muted" style="font-size: 8px; text-transform: uppercase; font-family: var(--font-mono);">Avg Duration</div>
+                    <div class="fw-bold text-light mt-1" style="font-size: 14px;" id="analyticsAvgDuration">0m</div>
+                  </div>
+                </div>
+                <div class="col-6 col-sm-3">
+                  <div class="glass-inner-dark p-2 rounded text-center h-100 d-flex flex-column justify-content-center">
+                    <div class="text-muted" style="font-size: 8px; text-transform: uppercase; font-family: var(--font-mono);">Productivity Score</div>
+                    <div class="fw-bold text-success mt-1" style="font-size: 14px;" id="analyticsProductivityScore">0%</div>
+                  </div>
+                </div>
+                <div class="col-6 col-sm-3">
+                  <div class="glass-inner-dark p-2 rounded text-center h-100 d-flex flex-column justify-content-center">
+                    <div class="text-muted" style="font-size: 8px; text-transform: uppercase; font-family: var(--font-mono);">Focus Consistency</div>
+                    <div class="fw-bold text-info mt-1" style="font-size: 14px;" id="analyticsConsistencyScore">0%</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Graphs -->
+              <div class="row g-3">
+                <div class="col-12 col-sm-7">
+                  <div class="glass-inner-dark p-3 rounded" style="height: 220px; display: flex; flex-direction: column;">
+                    <span style="font-size: 10px; font-family: var(--font-mono); color: var(--text-300); text-transform: uppercase; margin-bottom: 8px;"><i class="fa-solid fa-chart-bar text-info"></i> Weekly Focus Trend (min)</span>
+                    <div style="flex: 1; min-height: 0;">
+                      <canvas id="analyticsFocusTrendChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-5">
+                  <div class="glass-inner-dark p-3 rounded" style="height: 220px; display: flex; flex-direction: column;">
+                    <span style="font-size: 10px; font-family: var(--font-mono); color: var(--text-300); text-transform: uppercase; margin-bottom: 8px;"><i class="fa-solid fa-chart-pie text-secondary"></i> Category Split</span>
+                    <div style="flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;">
+                      <canvas id="analyticsCategoryChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI recommendations & break suggestions -->
+          <div class="col-12 col-lg-5">
+            <div class="d-flex flex-column gap-4 h-100">
+              <!-- AI productivity recommendations -->
+              <div class="glass-card flex-grow-1" style="padding: 24px; border-top: 3px solid var(--primary);">
+                <h3 class="chart-title mb-3" style="font-size: 14px;"><i class="fa-solid fa-wand-magic-sparkles text-primary"></i> AI Productivity Recommendation</h3>
+                <div class="glass-inner-dark p-3 rounded" style="font-size: 12px; line-height: 1.6; min-height: 120px; display: flex; align-items: center;">
+                  <p class="m-0 text-light" id="analyticsAiRecommendation">Analyzing your recent session records to formulate focus coaching directives...</p>
+                </div>
+              </div>
+
+              <!-- Smart Break Suggestion -->
+              <div class="glass-card" style="padding: 20px; border-top: 3px solid var(--secondary);">
+                <h3 class="chart-title mb-2" style="font-size: 13px;"><i class="fa-solid fa-mug-hot text-secondary"></i> Smart Break Advisor</h3>
+                <div class="glass-inner-dark p-3 rounded d-flex align-items-center gap-3">
+                  <div style="font-size: 24px; color: var(--secondary);"><i class="fa-solid fa-circle-info"></i></div>
+                  <div style="font-size: 12px; line-height: 1.5; color: var(--text-200);" id="analyticsBreakSuggestion">Ready for action. Flow coaching break times are dynamically computed after session completions.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 3: Professional Activity Timeline -->
+        <div class="row g-4 mt-2 mb-4">
+          <div class="col-12">
+            <div class="glass-card" style="padding: 24px;">
+              <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                <h3 class="chart-title m-0" style="font-size: 15px;"><i class="fa-solid fa-clock-rotate-left text-warning"></i> Deep Work Timeline</h3>
+                
+                <!-- Timeline filters -->
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <input type="text" id="timerTimelineSearch" class="styled-input m-0" style="font-size: 11px; height: 32px; min-width: 260px; flex-grow: 1; max-width: 380px;" placeholder="Search task name...">
+                  <select id="timerTimelineCategoryFilter" class="styled-input m-0" style="font-size: 11px; height: 32px; min-width: 180px; width: auto;">
+                    <option value="">All Categories</option>
+                    <option value="CODING">Coding</option>
+                    <option value="LEARNING">Learning</option>
+                    <option value="READING">Reading</option>
+                    <option value="RESEARCH">Research</option>
+                    <option value="WRITING">Writing</option>
+                    <option value="MEETINGS">Meetings</option>
+                    <option value="EXERCISE">Exercise</option>
+                    <option value="CUSTOM">Custom</option>
+                  </select>
+                  <select id="timerTimelineSortOrder" class="styled-input m-0" style="font-size: 11px; height: 32px; min-width: 160px; width: auto;">
+                    <option value="DESC">Newest First</option>
+                    <option value="ASC">Oldest First</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Timeline List Table -->
+              <div class="table-wrap" style="overflow-x: auto;">
+                <table class="data-table" id="timerTimelineTable" style="font-size: 11px; min-width: 1050px; table-layout: fixed;">
+                  <colgroup>
+                    <col style="width: 16%;">
+                    <col style="width: 9%;">
+                    <col style="width: 11%;">
+                    <col style="width: 11%;">
+                    <col style="width: 8%;">
+                    <col style="width: 10%;">
+                    <col style="width: 8%;">
+                    <col style="width: 11%;">
+                    <col style="width: 8%;">
+                    <col style="width: 13%;">
+                    <col style="width: 5%;">
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th>Activity Name</th>
+                      <th>Category</th>
+                      <th>Start Time</th>
+                      <th>End Time</th>
+                      <th>Duration</th>
+                      <th>Focus Score</th>
+                      <th>XP Earned</th>
+                      <th>Productivity Rating</th>
+                      <th>Status</th>
+                      <th>Created Date</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="timerTimelineTableBody">
+                    <tr>
+                      <td colspan="11" class="text-center p-4 text-muted small">No deep work logs resolved.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Pagination -->
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <span class="text-muted" style="font-size: 11px; font-family: var(--font-mono);" id="timerTimelinePageIndicator">Page 1</span>
+                <div class="d-flex gap-2">
+                  <button id="timerTimelinePrevPage" class="btn btn-outline-secondary btn-sm" style="font-size: 11px;"><i class="fa-solid fa-chevron-left"></i> Prev</button>
+                  <button id="timerTimelineNextPage" class="btn btn-outline-secondary btn-sm" style="font-size: 11px;">Next <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Legacy Activity Intelligence container merged into Productivity Intelligence Hub (#view-dashboard). -->
+
+      <!-- ═════════════════ AI ASSISTANT VIEW ═════════════════ -->
+      <section class="view container-fluid" id="view-ai">
+        <div class="view-header">
+          <div><h1 class="view-title">AI Assistant</h1><p class="view-subtitle">Chat with Phi-3 running 100% offline via Ollama.</p></div>
+          <div class="ai-status-pill" id="aiViewStatus"><span class="ai-dot" id="aiViewDot"></span><span id="aiViewLabel">Checking...</span></div>
+        </div>
+        <div class="ai-chat-layout glass-card">
+          <div class="ai-messages" id="aiMessages">
+            <div class="ai-welcome">
+              <div class="ai-welcome-icon"><i class="fa-solid fa-robot"></i></div>
+              <h3>Hi! I'm Phi-3</h3>
+              <p>Your private offline AI assistant. Ask me anything about productivity, coding, writing, or analysis.</p>
+              <div class="ai-quick-grid">
+                <button class="ai-quick-btn" onclick="aiQuickSend(this)"><i class="fa-solid fa-brain"></i> Productivity tips</button>
+                <button class="ai-quick-btn" onclick="aiQuickSend(this)"><i class="fa-brands fa-python"></i> Python example</button>
+                <button class="ai-quick-btn" onclick="aiQuickSend(this)"><i class="fa-solid fa-lightbulb"></i> Explain deep work</button>
+                <button class="ai-quick-btn" onclick="aiQuickSend(this)"><i class="fa-solid fa-code"></i> Clean code tips</button>
+              </div>
+            </div>
+          </div>
+          <div class="ai-input-zone">
+            <div class="ai-input-wrap" id="aiInputWrap">
+              <button class="ai-voice-btn" id="aiVoiceBtn" onclick="toggleAiVoice()" title="Voice input"><i class="fa-solid fa-microphone" id="aiMicIcon"></i></button>
+              <textarea id="aiInput" class="ai-textarea" placeholder="Ask Phi-3 anything... (Enter to send)" rows="1" onkeydown="aiKeydown(event)" oninput="aiResize(this)"></textarea>
+              <button class="ai-send-btn" id="aiSendBtn" onclick="sendAiMessage()" disabled><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+            <div class="ai-input-footer">
+              <span id="aiCharCount">0 / 4000</span>
+              <span class="ai-model-tag"><i class="fa-solid fa-microchip"></i> Phi-3 · Ollama · Offline</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═════════════════ NOTES VIEW ═════════════════ -->
+      <section class="view container-fluid" id="view-notes">
+        <div class="view-header">
+          <div><h1 class="view-title">Notes</h1><p class="view-subtitle">Capture thoughts while in your flow state.</p></div>
+        </div>
+        <div class="notes-layout">
+          <div class="glass-card note-composer">
+            <h4 class="card-title"><i class="fa-solid fa-pen-to-square"></i> New Note</h4>
+            <input type="text" id="noteTitle" class="styled-input" placeholder="Title...">
+            <textarea id="noteContent" class="styled-textarea" rows="6" placeholder="Write your thoughts..."></textarea>
+            <button class="btn-primary" id="saveNoteBtn"><i class="fa-solid fa-floppy-disk"></i> Save Note</button>
+          </div>
+          <div class="notes-feed" id="notesList"></div>
+        </div>
+      </section>
+
+      <!-- ═════════════════ MONITOR VIEW ═════════════════ -->
+      <section class="view container-fluid" id="view-monitor">
+        <div class="view-header">
+          <div><h1 class="view-title">Study Monitor</h1><p class="view-subtitle">Websites visited while studying today.</p></div>
+          <div style="display:flex;gap:10px"><span class="status-badge" id="monitorNetStatus"><i class="fa-solid fa-wifi"></i> Online</span><span class="status-badge" id="monitorOllamaStatus"><i class="fa-solid fa-robot"></i> Checking...</span></div>
+        </div>
+        <div class="glass-card chart-card chart-full">
+          <h3 class="chart-title"><i class="fa-solid fa-chart-bar"></i> Time Per Site Today <span class="chart-unit">(minutes)</span></h3>
+          <div style="min-height:220px"><canvas id="monitorBarChart"></canvas></div>
+        </div>
+        <div class="charts-row">
+          <div class="glass-card chart-card chart-ring-card">
+            <h3 class="chart-title"><i class="fa-solid fa-pie-chart"></i> Study Categories</h3>
+            <canvas id="monitorDonutChart"></canvas>
+          </div>
+          <div class="glass-card" style="flex:1;padding:28px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><span style="font-size:28px">🧩</span><div><h4 class="card-title" style="margin:0">Install Chrome Extension</h4><p class="sub-text">Enables live study tracking & RAG context</p></div></div>
+            <ol class="ext-steps"><li>Click <strong>Add to Chrome</strong> below</li><li>Enable <strong>Developer Mode</strong> (top-right toggle)</li><li>Click <strong>Load Unpacked</strong> → select <code>extension/</code> folder</li><li>Browse any study site — it appears here instantly!</li></ol>
+            <button id="addExtensionBtn" class="btn-primary" style="width:100%;justify-content:center" onclick="window.open('chrome://extensions','_blank')"><i class="fa-brands fa-chrome"></i> Open Chrome Extensions</button>
+          </div>
+        </div>
+        <div class="glass-card" style="padding:24px">
+          <h3 class="chart-title" style="margin-bottom:16px"><i class="fa-solid fa-globe"></i> Today's Visits</h3>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Domain</th><th>Time Spent</th><th>Category</th><th>Last Seen</th></tr></thead>
+              <tbody id="monitorTableBody"><tr><td colspan="4" class="empty-row">No visits yet. Install the Chrome Extension to begin.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+
+
+      <!-- ═════════════════ HYBRID RAG MONITOR VIEW ═════════════════ -->
+      <section class="view container-fluid" id="view-rag-validation">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title"><i class="fa-solid fa-network-wired" style="color:var(--accent-primary)"></i> Hybrid RAG Monitor</h1>
+            <p class="view-subtitle">Real-time retrieval analytics, network status, source citations, and knowledge base management.</p>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <span class="status-badge" id="ragNetBadge"><i class="fa-solid fa-wifi"></i> Checking...</span>
+            <span class="status-badge" id="ragOllamaBadge"><i class="fa-solid fa-robot"></i> Checking...</span>
+            <span class="status-badge" id="ragModeBadge" style="background: rgba(99,102,241,0.18);"><i class="fa-solid fa-layer-group"></i> Mode: Hybrid</span>
+          </div>
+        </div>
+
+        <!-- Status Cards Row -->
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-md-3">
+            <div class="glass-card" style="padding:18px; text-align:center;">
+              <div style="font-size:28px; font-weight:700; color:var(--accent-primary); font-family:var(--font-mono);" id="ragStatChunks">—</div>
+              <div style="font-size:10px; color:var(--text-400); text-transform:uppercase; letter-spacing:1px; margin-top:4px;">Your Chunks</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="glass-card" style="padding:18px; text-align:center;">
+              <div style="font-size:28px; font-weight:700; color:#06b6d4; font-family:var(--font-mono);" id="ragStatDocs">—</div>
+              <div style="font-size:10px; color:var(--text-400); text-transform:uppercase; letter-spacing:1px; margin-top:4px;">Documents</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="glass-card" style="padding:18px; text-align:center;">
+              <div style="font-size:28px; font-weight:700; color:#a855f7; font-family:var(--font-mono);" id="ragStatQueries">—</div>
+              <div style="font-size:10px; color:var(--text-400); text-transform:uppercase; letter-spacing:1px; margin-top:4px;">Queries (Session)</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="glass-card" style="padding:18px; text-align:center;">
+              <div style="font-size:28px; font-weight:700; color:#10b981; font-family:var(--font-mono);" id="ragStatLatency">—</div>
+              <div style="font-size:10px; color:var(--text-400); text-transform:uppercase; letter-spacing:1px; margin-top:4px;">Avg Latency (ms)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- LEFT: Live Query Tester -->
+          <div class="col-12 col-xl-7">
+
+            <!-- Query Test Panel -->
+            <div class="glass-card mb-4" style="padding:24px;">
+              <h3 class="chart-title" style="margin-bottom:8px;"><i class="fa-solid fa-flask-vial" style="color:#a855f7"></i> Live RAG Query Tester</h3>
+              <p class="sub-text" style="margin-bottom:18px;">Submit a query and inspect sources retrieved from local knowledge base and/or online search.</p>
+
+              <!-- Mode Selector Tabs -->
+              <div style="display:flex; gap:8px; margin-bottom:16px; background:rgba(255,255,255,0.03); border-radius:12px; padding:6px;">
+                <button class="rag-mode-btn active" data-mode="hybrid" id="ragModeHybrid" onclick="setRagTestMode('hybrid')"><i class="fa-solid fa-layer-group"></i> Hybrid</button>
+                <button class="rag-mode-btn" data-mode="offline" id="ragModeOffline" onclick="setRagTestMode('offline')"><i class="fa-solid fa-database"></i> Offline</button>
+                <button class="rag-mode-btn" data-mode="online" id="ragModeOnline" onclick="setRagTestMode('online')"><i class="fa-solid fa-globe"></i> Online</button>
+              </div>
+
+              <div style="display:flex; gap:10px; margin-bottom:18px; align-items:center;">
+                <input type="text" id="ragTestQuery" class="styled-input" style="flex:1; margin:0;" placeholder="e.g. What is Python used for?" onkeydown="if(event.key==='Enter') runRagTest()">
+                <button class="btn-primary btn-glow" onclick="runRagTest()" id="ragRunBtn" style="padding:0 20px; height:40px; white-space:nowrap;"><i class="fa-solid fa-bolt"></i> Run Test</button>
+              </div>
+
+              <!-- Result Metrics Bar -->
+              <div id="ragResultMeta" style="display:none; margin-bottom:16px; padding:10px 14px; background:rgba(99,102,241,0.1); border-radius:10px; border:1px solid rgba(99,102,241,0.25); display:flex; gap:20px; flex-wrap:wrap; font-family:var(--font-mono); font-size:11px; color:var(--text-300);">
+                <span><i class="fa-solid fa-clock"></i> <span id="ragMetaTime">—</span> ms</span>
+                <span><i class="fa-solid fa-layer-group"></i> Mode: <span id="ragMetaMode" style="color:var(--accent-primary);">—</span></span>
+                <span><i class="fa-solid fa-database"></i> Local: <span id="ragMetaLocal" style="color:#10b981;">—</span></span>
+                <span><i class="fa-solid fa-globe"></i> Online: <span id="ragMetaOnline" style="color:#06b6d4;">—</span></span>
+                <span><i class="fa-solid fa-wifi"></i> Net: <span id="ragMetaNet">—</span></span>
+              </div>
+
+              <!-- Sources Results -->
+              <div id="ragTestResults" style="display:flex; flex-direction:column; gap:10px; max-height:420px; overflow-y:auto; padding-right:4px;">
+                <div style="text-align:center; padding:40px; color:var(--text-400); font-size:12px; border:1px dashed var(--border-glass); border-radius:12px;">
+                  <i class="fa-solid fa-magnifying-glass" style="font-size:24px; margin-bottom:12px; opacity:0.3;"></i><br>
+                  Enter a query above and run the test to see retrieved sources with citations.
+                </div>
+              </div>
+            </div>
+
+            <!-- Retrieval History -->
+            <div class="glass-card" style="padding:24px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 class="chart-title" style="margin:0;"><i class="fa-solid fa-history" style="color:#06b6d4"></i> Recent Retrievals</h3>
+                <button class="btn-ghost" onclick="loadRagValidation()" style="font-size:11px; padding:4px 10px;"><i class="fa-solid fa-rotate"></i> Refresh</button>
+              </div>
+              <div id="ragRecentList" style="display:flex; flex-direction:column; gap:8px; max-height:260px; overflow-y:auto;">
+                <div style="text-align:center; padding:20px; color:var(--text-400); font-size:12px;">No queries this session yet.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: System Status + Knowledge Base -->
+          <div class="col-12 col-xl-5">
+
+            <!-- Network & System Status -->
+            <div class="glass-card mb-4" style="padding:24px;">
+              <h3 class="chart-title" style="margin-bottom:16px;"><i class="fa-solid fa-satellite-dish" style="color:#10b981"></i> System Status</h3>
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:rgba(255,255,255,0.03); border-radius:10px; border:1px solid var(--border-glass);">
+                  <span style="font-size:13px; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-wifi"></i> Internet Connection</span>
+                  <span id="sysNetStatus" class="status-badge">Checking...</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:rgba(255,255,255,0.03); border-radius:10px; border:1px solid var(--border-glass);">
+                  <span style="font-size:13px; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-robot"></i> Ollama / LLM Engine</span>
+                  <span id="sysOllamaStatus" class="status-badge">Checking...</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:rgba(255,255,255,0.03); border-radius:10px; border:1px solid var(--border-glass);">
+                  <span style="font-size:13px; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-database"></i> PostgreSQL / PGVector</span>
+                  <span id="sysPgStatus" class="status-badge" style="background:rgba(16,185,129,0.15); color:#10b981;">Connected</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:rgba(99,102,241,0.08); border-radius:10px; border:1px solid rgba(99,102,241,0.2);">
+                  <span style="font-size:13px; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-layer-group"></i> Recommended Mode</span>
+                  <span id="sysRecommendedMode" style="font-family:var(--font-mono); font-size:12px; font-weight:600; color:var(--accent-primary);">—</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Session Mode Distribution -->
+            <div class="glass-card mb-4" style="padding:24px;">
+              <h3 class="chart-title" style="margin-bottom:16px;"><i class="fa-solid fa-chart-pie" style="color:#a855f7"></i> Session Query Distribution</h3>
+              <div style="display:flex; flex-direction:column; gap:10px;" id="ragDistribution">
+                <div class="rag-dist-row">
+                  <span style="font-size:12px; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-layer-group" style="color:#6366f1;"></i> Hybrid</span>
+                  <div class="rag-dist-bar-wrap"><div class="rag-dist-bar" id="ragDistHybrid" style="width:0%; background:linear-gradient(90deg,#6366f1,#818cf8);"></div></div>
+                  <span class="rag-dist-pct" id="ragDistHybridPct">0%</span>
+                </div>
+                <div class="rag-dist-row">
+                  <span style="font-size:12px; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-database" style="color:#10b981;"></i> Offline</span>
+                  <div class="rag-dist-bar-wrap"><div class="rag-dist-bar" id="ragDistOffline" style="width:0%; background:linear-gradient(90deg,#10b981,#34d399);"></div></div>
+                  <span class="rag-dist-pct" id="ragDistOfflinePct">0%</span>
+                </div>
+                <div class="rag-dist-row">
+                  <span style="font-size:12px; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-globe" style="color:#06b6d4;"></i> Online</span>
+                  <div class="rag-dist-bar-wrap"><div class="rag-dist-bar" id="ragDistOnline" style="width:0%; background:linear-gradient(90deg,#06b6d4,#22d3ee);"></div></div>
+                  <span class="rag-dist-pct" id="ragDistOnlinePct">0%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Knowledge Base -->
+            <div class="glass-card" style="padding:24px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h3 class="chart-title" style="margin:0;"><i class="fa-solid fa-folder-open" style="color:#f59e0b"></i> Knowledge Base</h3>
+                <span id="ragChunkBadge" style="font-family:var(--font-mono); font-size:11px; color:var(--text-300);">0 chunks</span>
+              </div>
+              <p class="sub-text" style="margin-bottom:16px;">Indexed documents stored in PostgreSQL. Click trash to remove.</p>
+              <div id="ragKbList" style="display:flex; flex-direction:column; gap:8px; max-height:280px; overflow-y:auto;">
+                <div style="text-align:center; padding:20px; color:var(--text-400); font-size:12px;">No documents indexed yet.</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ═════════════════ LEARNING HUB VIEW ═════════════════ -->
+      <section class="view container-fluid" id="view-learning-hub">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Cognitive Knowledge Hub</h1>
+            <p class="view-subtitle">Monitor your personalized AI learning assistant, index knowledge resources, and track progress.</p>
+          </div>
+          <button class="btn-primary btn-glow" id="btnSyncKnowledge" onclick="triggerManualCrawl(event)"><i class="fa-solid fa-rotate"></i> Sync Knowledge Core</button>
+        </div>
+
+        <div class="row g-4">
+          <!-- Left side: Preferences and Stats -->
+          <div class="col-12 col-lg-7">
+            <!-- Learning Profile Preferences -->
+            <div class="glass-card mb-4" style="padding:24px;">
+              <h3 class="chart-title" style="margin-bottom:12px"><i class="fa-solid fa-graduation-cap"></i> Personalized Learning Profile</h3>
+              <p class="sub-text" style="margin-bottom: 20px;">Review your cognitive focus categories and adjust mentoring parameters.</p>
+              
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label style="font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; color: var(--text-400);">Use Case / Objective</label>
+                    <input type="text" id="learnUseCaseVal" class="styled-input" style="width:100%; margin-top:6px;" readonly>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-group">
+                    <label style="font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; color: var(--text-400);">Resource Crawling Permission</label>
+                    <div style="margin-top: 10px; display: flex; align-items: center; gap: 8px;">
+                      <label class="switch" style="position: relative; display: inline-block; width: 44px; height: 22px;">
+                        <input type="checkbox" id="learnCrawlAllowedCheckbox" onchange="toggleCrawlPermission(event)">
+                        <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .4s; border-radius: 22px;"></span>
+                      </label>
+                      <span id="crawlPermStatusPill" style="font-size: 11px; font-family: var(--font-mono); color: var(--text-300);">Enabled</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-group">
+                    <label style="font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; color: var(--text-400);">Active Focus Topics</label>
+                    <div id="learnTopicsPills" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;">
+                      <!-- pills here -->
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-group">
+                    <label style="font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; color: var(--text-400);">Add Custom Learning Interests (comma separated)</label>
+                    <div style="display:flex; gap:10px; margin-top:6px;">
+                      <input type="text" id="learnCustomInterestsInput" class="styled-input" style="flex:1; margin:0;" placeholder="e.g. Docker, Cryptography, React Native">
+                      <button class="btn-primary" onclick="addCustomInterests(event)" style="padding:0 16px; height:38px;"><i class="fa-solid fa-plus"></i> Add Interests</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Topic Coverage & Progress Meters -->
+            <div class="glass-card mb-4" style="padding:24px;">
+              <h3 class="chart-title" style="margin-bottom:12px"><i class="fa-solid fa-chart-line"></i> Knowledge Coverage Analysis</h3>
+              <p class="sub-text" style="margin-bottom: 20px;">Displays the density of indexed documents and RAG vector chunks for each interest area.</p>
+              
+              <div id="learnCoverageContainer" style="display:flex; flex-direction:column; gap:16px;">
+                <!-- progress meters here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Right side: Custom indexing and Recommendations -->
+          <div class="col-12 col-lg-5">
+            <!-- Add Custom Document to Index -->
+            <div class="glass-card mb-4" style="padding:24px;">
+              <h3 class="chart-title" style="margin-bottom:12px"><i class="fa-solid fa-plus-circle"></i> Add Reference Source</h3>
+              <p class="sub-text" style="margin-bottom: 20px;">Enter an educational web URL or a specific concept/topic name to crawl and index.</p>
+              
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <input type="text" id="learnCustomDocInput" class="styled-input" style="width:100%; margin:0;" placeholder="Enter educational URL or Topic Name (e.g. React hooks)">
+                <button class="btn-primary" onclick="submitCustomDocument(event)" style="width:100%; justify-content:center;"><i class="fa-solid fa-spider"></i> Crawl & Index Source</button>
+              </div>
+            </div>
+
+            <!-- Recommended Topics -->
+            <div class="glass-card mb-4" style="padding:24px;">
+              <h3 class="chart-title" style="margin-bottom:12px"><i class="fa-solid fa-compass"></i> Recommendations Panel</h3>
+              <p class="sub-text" style="margin-bottom: 20px;">Personalized topic additions tailored to your use case.</p>
+              
+              <div id="learnRecsContainer" style="display:flex; flex-direction:column; gap:10px;">
+                <!-- recommendations pills -->
+              </div>
+            </div>
+
+            <!-- Knowledge Repository Log -->
+            <div class="glass-card" style="padding:24px; display:flex; flex-direction:column; max-height:450px; overflow:hidden;">
+              <h3 class="chart-title" style="margin-bottom:12px"><i class="fa-solid fa-database"></i> Indexed Repository</h3>
+              <p class="sub-text" style="margin-bottom: 12px;">List of unique documents collected in your cognitive database.</p>
+              
+              <div style="margin-bottom: 12px;">
+                <input type="text" id="learnDocSearch" class="styled-input" style="width:100%; font-size:11px; padding:6px 12px;" placeholder="Filter indexed files..." onkeyup="filterLearningDocs()">
+              </div>
+              <div id="learnDocsList" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding-right:4px;">
+                <!-- list of indexed documents -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ─── RIGHT GAMIFICATION PANEL ─── -->
+  <aside class="right-ai-panel">
+    <!-- Player Profile Card -->
+    <div class="gam-card glass-card p-3 mb-3 relative overflow-hidden" style="border-top: 3px solid var(--primary);">
+      <div id="profile-glow" class="profile-glow" style="position:absolute; top: -50px; left: -50px; width: 100px; height: 100px; background: var(--primary-glow); filter: blur(50px); opacity: 0.5; pointer-events: none;"></div>
+      <h4 class="mb-3" style="color:var(--text-400); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:600;"><i class="fa-solid fa-user-astronaut"></i> explorer profile</h4>
+      
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="gam-avatar-container" style="position:relative; width:52px; height:52px;">
+          <div class="avatar-ring" style="position:absolute; inset: -2px; border: 2px solid var(--primary); border-radius:50%; box-shadow: 0 0 10px var(--primary-glow); animation: spin 8s linear infinite;"></div>
+          <div class="gam-avatar" id="avatarEl" style="width:100%; height:100%; background:rgba(255,255,255,0.03); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px;">🧠</div>
+        </div>
+        <div class="gam-info">
+          <div class="gam-level-badge fw-bold" style="color:var(--primary-lt); font-size:1.1rem; line-height: 1;">LVL <span id="sidebarLevel">1</span></div>
+          <div class="gam-level-title small text-muted" id="sidebarLevelTitle" style="font-weight:600; text-transform:uppercase; letter-spacing:0.5px; font-size:9px; margin-top: 1px;">Focus Rookie</div>
+          <div class="gam-rank-tag small text-muted" id="sidebarRank" style="font-size:8px; font-family: var(--font-mono); opacity: 0.8; margin-top:-2px;">Rank: Explorer</div>
+        </div>
+      </div>
+
+      <!-- XP Bar -->
+      <div class="xp-container mb-2">
+        <div class="d-flex justify-content-between small mb-1" style="font-family:var(--font-mono); font-size:9px;">
+          <span style="color: var(--text-400);">Synaptic XP</span>
+          <span><span id="sidebarXpCurrent" class="fw-bold text-light">0</span> / <span id="sidebarXpNeeded">120</span> XP</span>
+        </div>
+        <div class="gam-xp-track" style="height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">
+           <div class="gam-xp-fill" id="sidebarXpBar" style="width:0%; height:100%; background:linear-gradient(90deg, var(--primary), var(--secondary)); box-shadow:0 0 8px var(--primary-glow); transition: width 0.4s ease;"></div>
+        </div>
+      </div>
+
+      <!-- Coins and Focus Score -->
+      <div class="d-flex justify-content-between align-items-center small p-2 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+        <span class="d-flex align-items-center gap-1 text-warning fw-bold" style="font-size: 11px; font-family: var(--font-mono);">
+          <i class="fa-solid fa-coins"></i> <span id="sidebarCoins">0</span>
+        </span>
+        <span class="d-flex align-items-center gap-1 text-cyan fw-bold" style="font-size: 10px; font-family: var(--font-mono);" title="Focus score calculated from daily study durations">
+          <i class="fa-solid fa-bullseye"></i> Focus: <span id="sidebarFocusScore">0</span>%
+        </span>
+      </div>
+    </div>
+
+    <!-- Streaks & Consistency -->
+    <div class="glass-card p-3 mb-3">
+      <h4 class="mb-3" style="color:var(--text-400); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:600;"><i class="fa-solid fa-fire text-warning"></i> Consistency</h4>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="small text-muted" style="font-size: 11px;">Current Streak</span>
+        <span class="badge" style="background:rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); color:#f59e0b; font-family: var(--font-mono); font-size: 10px;">
+          <i class="fa-solid fa-fire"></i> <span id="sidebarStreak">0</span> Days
+        </span>
+      </div>
+      <div class="weekly-streak-grid d-flex justify-content-between mt-2" id="weeklyStreakDots" style="background: rgba(0,0,0,0.15); padding: 8px 6px; border-radius: 8px; border: 1px solid var(--border-glass);">
+        <div class="day-dot d-flex flex-column align-items-center gap-1" data-day="1" title="Monday" style="flex:1; cursor:pointer;"><span style="font-size:8px; color:var(--text-400); font-weight:bold; font-family:var(--font-mono);">M</span><div class="dot-indicator" style="width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.08); transition:all 0.3s;"></div></div>
+        <div class="day-dot d-flex flex-column align-items-center gap-1" data-day="2" title="Tuesday" style="flex:1; cursor:pointer;"><span style="font-size:8px; color:var(--text-400); font-weight:bold; font-family:var(--font-mono);">T</span><div class="dot-indicator" style="width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.08); transition:all 0.3s;"></div></div>
+        <div class="day-dot d-flex flex-column align-items-center gap-1" data-day="3" title="Wednesday" style="flex:1; cursor:pointer;"><span style="font-size:8px; color:var(--text-400); font-weight:bold; font-family:var(--font-mono);">W</span><div class="dot-indicator" style="width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.08); transition:all 0.3s;"></div></div>
+        <div class="day-dot d-flex flex-column align-items-center gap-1" data-day="4" title="Thursday" style="flex:1; cursor:pointer;"><span style="font-size:8px; color:var(--text-400); font-weight:bold; font-family:var(--font-mono);">T</span><div class="dot-indicator" style="width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.08); transition:all 0.3s;"></div></div>
+        <div class="day-dot d-flex flex-column align-items-center gap-1" data-day="5" title="Friday" style="flex:1; cursor:pointer;"><span style="font-size:8px; color:var(--text-400); font-weight:bold; font-family:var(--font-mono);">F</span><div class="dot-indicator" style="width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.08); transition:all 0.3s;"></div></div>
+        <div class="day-dot d-flex flex-column align-items-center gap-1" data-day="6" title="Saturday" style="flex:1; cursor:pointer;"><span style="font-size:8px; color:var(--text-400); font-weight:bold; font-family:var(--font-mono);">S</span><div class="dot-indicator" style="width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.08); transition:all 0.3s;"></div></div>
+        <div class="day-dot d-flex flex-column align-items-center gap-1" data-day="0" title="Sunday" style="flex:1; cursor:pointer;"><span style="font-size:8px; color:var(--text-400); font-weight:bold; font-family:var(--font-mono);">S</span><div class="dot-indicator" style="width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.08); transition:all 0.3s;"></div></div>
+      </div>
+    </div>
+
+    <!-- Daily Quests / Challenges -->
+    <div class="glass-card p-3 mb-3 d-flex flex-column" style="flex: 1; min-height: 180px; max-height: 240px; overflow: hidden;">
+      <h4 class="mb-3" style="color:var(--text-400); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:600;"><i class="fa-solid fa-gamepad text-primary"></i> Daily Focus Quests</h4>
+      <div class="d-flex flex-column gap-2 flex-grow-1" id="dailyChallengesList" style="overflow-y:auto; padding-right:2px;">
+        <div class="text-center p-3 text-muted small">Loading today's quests...</div>
+      </div>
+    </div>
+
+    <!-- Reward Shop -->
+    <div class="glass-card p-3" style="max-height: 250px; overflow: hidden; display: flex; flex-direction: column;">
+      <h4 class="mb-2" style="color:var(--text-400); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:600;"><i class="fa-solid fa-store text-secondary"></i> Rewards Shop</h4>
+      <div class="d-flex flex-column gap-2 flex-grow-1" id="sidebarShopList" style="overflow-y:auto; padding-right:2px;">
+        <div class="text-center p-3 text-muted small">Loading shop rewards...</div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<!-- Holographic Overlay Elements -->
+<div class="holographic-overlay" style="position:fixed; top:0; left:0; width:100vw; height:100vh; pointer-events:none; z-index:9999; opacity:0.15; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,255,0.05) 3px, transparent 4px);"></div>
+
+<style>
+@keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
+
+<!-- Floating Action Button -->
+<button class="fab" id="fabBtn" onclick="switchView('view-timer')" title="Start Session">
+  <i class="fa-solid fa-play"></i>
+</button>
+
+<!-- ═════════════════ CYBERPUNK APP LOCK & AUTH SCREEN ═════════════════ -->
+<div class="app-lock-overlay" id="appLockOverlay" style="display: none;">
+  <div class="db-setup-glow"></div>
+  
+  <!-- LOCK STATE (CLICK PULSING LOGO TO ACTIVATE) -->
+  <div class="lock-prompt-card" id="lockPromptCard">
+    <div class="lock-icon-pulse"><i class="fa-solid fa-lock"></i></div>
+    <h2>WORKSPACE ENCRYPTED</h2>
+    <p class="sub-text">Click the pulsing Thunder Logo in the left sidebar to initialize cognitive core link.</p>
+    <div class="guide-arrow"><i class="fa-solid fa-chevron-left"></i> INITIALIZE CORE LINK</div>
+  </div>
+
+  <!-- AUTHENTICATION FORM CARD (SHOWN UPON LOGO CLICK) -->
+  <div class="db-setup-card glass-card" id="authCard" style="display: none;">
+    <div class="db-setup-header">
+      <div class="db-setup-logo"><i class="fa-solid fa-bolt-lightning"></i></div>
+      <h2>COGNITIVE SIGN IN</h2>
+      <p class="sub-text">Authenticate your explorer profile to boot workspace cores.</p>
+    </div>
+    
+    <div class="db-setup-form" id="loginForm">
+      <div class="form-group">
+        <label for="loginEmail">Username or Email</label>
+        <input type="text" id="loginEmail" class="styled-input" placeholder="Username or name@example.com" required autocomplete="username">
+      </div>
+      
+      <div class="form-group" style="margin-top: 16px;">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" class="styled-input" style="margin-top: 6px;" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+      
+      <div id="loginErrorMsg" style="display:none; color: #ff5555; background: rgba(255,85,85,0.1); border: 1px solid rgba(255,85,85,0.2); border-radius: 8px; padding: 8px 12px; margin-top: 14px; font-size: 11px; text-align: center;"></div>
+
+      <button class="btn-primary btn-glow btn-full" id="btnLogin" style="margin-top: 18px; width: 100%; justify-content: center;">
+        <i class="fa-solid fa-arrow-right-to-bracket"></i> SIGN IN
+      </button>
+      
+      <div class="auth-footer" style="text-align: center; margin-top: 20px; font-size: 11px; color: var(--text-400);">
+        New explorer? <a href="#" onclick="toggleAuth(event)" style="color: var(--secondary); text-decoration: none; font-weight: 600;">Create account</a>
+      </div>
+    </div>
+
+    <!-- SIGN UP FORM -->
+    <div class="db-setup-form" id="registerForm" style="display: none;">
+      <div class="form-group">
+        <label for="regUsername">Username</label>
+        <input type="text" id="regUsername" class="styled-input" placeholder="Choose username" required autocomplete="username">
+      </div>
+      
+      <div class="form-group" style="margin-top: 16px;">
+        <label for="regEmail">Email Address</label>
+        <input type="email" id="regEmail" class="styled-input" placeholder="name@example.com" required autocomplete="email">
+      </div>
+      
+      <div class="form-group" style="margin-top: 16px;">
+        <label for="regPassword">Password</label>
+        <input type="password" id="regPassword" class="styled-input" placeholder="At least 6 characters" required autocomplete="new-password">
+      </div>
+      
+      <div id="regErrorMsg" style="display:none; color: #ff5555; background: rgba(255,85,85,0.1); border: 1px solid rgba(255,85,85,0.2); border-radius: 8px; padding: 8px 12px; margin-top: 14px; font-size: 11px; text-align: center;"></div>
+
+      <button class="btn-primary btn-glow btn-full" id="btnRegister" style="margin-top: 18px; width: 100%; justify-content: center;">
+        <i class="fa-solid fa-user-plus"></i> SIGN UP
+      </button>
+      
+      <div class="auth-footer" style="text-align: center; margin-top: 20px; font-size: 11px; color: var(--text-400);">
+        Have active credentials? <a href="#" onclick="toggleAuth(event)" style="color: var(--secondary); text-decoration: none; font-weight: 600;">Sign in</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════ CYBERPUNK DATABASE SETUP SCREEN ═════════════════ -->
+<div class="db-setup-overlay" id="dbSetupOverlay" style="display: none;">
+  <div class="db-setup-glow"></div>
+  <div class="db-setup-card glass-card">
+    <div class="db-setup-header">
+      <div class="db-setup-logo"><i class="fa-solid fa-database"></i></div>
+      <h2>DATABASE ONBOARDING</h2>
+      <p class="sub-text">Connect local PostgreSQL core to initialize FocusAI workspace.</p>
+    </div>
+    
+    <div class="db-setup-form">
+      <div class="form-row">
+        <div style="flex: 2;">
+          <label for="dbHost">PostgreSQL Host</label>
+          <input type="text" id="dbHost" class="styled-input" placeholder="localhost" value="localhost">
+        </div>
+        <div style="flex: 1; margin-left: 12px;">
+          <label for="dbPort">Port</label>
+          <input type="text" id="dbPort" class="styled-input" placeholder="5432" value="5432">
+        </div>
+      </div>
+      
+      <div class="form-group" style="margin-top: 16px;">
+        <label for="dbName">Database Name</label>
+        <input type="text" id="dbName" class="styled-input" placeholder="focusai_db" value="focusai_db">
+        <span class="input-tip" style="font-size: 10px; color: var(--text-400); margin-top: 4px; display: block;">💡 Target database will be automatically created if it doesn't exist.</span>
+      </div>
+      
+      <div class="form-row" style="margin-top: 16px;">
+        <div style="flex: 1; margin-right: 6px;">
+          <label for="dbUsername">Username</label>
+          <input type="text" id="dbUsername" class="styled-input" placeholder="postgres" value="postgres">
+        </div>
+        <div style="flex: 1; margin-left: 6px;">
+          <label for="dbPassword">Password</label>
+          <input type="password" id="dbPassword" class="styled-input" placeholder="••••••••">
+        </div>
+      </div>
+      
+      <div class="db-setup-status" id="dbSetupStatus" style="display: none; margin-top: 20px; align-items: center; justify-content: center; gap: 8px;">
+        <i class="fa-solid fa-spinner fa-spin" style="color:var(--secondary);"></i>
+        <span class="status-msg" id="dbSetupStatusMsg" style="font-size: 11px; font-weight: bold; color: var(--secondary); letter-spacing: 0.5px; text-transform: uppercase;">ESTABLISHING SECURE PORT LINK...</span>
+      </div>
+      
+      <div class="db-setup-error" id="dbSetupError" style="display: none; margin-top: 20px; padding: 10px 16px; background: rgba(248, 113, 113, 0.05); border: 1px solid rgba(248, 113, 113, 0.15); border-radius: 8px; color: #f87171; align-items: center; gap: 10px; font-size: 12px;">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span id="dbSetupErrorMsg">Connection Refused</span>
+      </div>
+      
+      <button class="btn-primary btn-glow btn-full" id="dbSetupBtn" style="margin-top: 24px; width: 100%; justify-content: center;">
+        <i class="fa-solid fa-circle-bolt"></i> INITIALIZE NEURAL CORE
+      </button>
+    </div>
+    
+    <div class="db-setup-footer" style="display: flex; justify-content: space-between; margin-top: 28px; font-size: 10px; color: var(--text-400); font-family: var(--font-mono);">
+      <span><i class="fa-solid fa-wifi-slash"></i> Offline Core Config</span>
+      <span>v2.6.0 · SECURE</span>
+    </div>
+  </div>
+</div>
+
+<!-- 🚨 CYBERPUNK COGNITIVE ONBOARDING SCREEN 🚨 -->
+<div class="db-setup-overlay" id="onboardingOverlay" style="display: none; z-index: 10000;">
+  <div class="db-setup-glow"></div>
+  <div class="db-setup-card glass-card" style="max-width: 580px; width: 90%;">
+    <div class="db-setup-header">
+      <div class="db-setup-logo"><i class="fa-solid fa-graduation-cap"></i></div>
+      <h2>COGNITIVE ONBOARDING</h2>
+      <p class="sub-text">Initialize your AI study assistant by selecting your learning objectives.</p>
+    </div>
+    
+    <div class="db-setup-form">
+      <div class="form-group mb-3">
+        <label style="font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; color: var(--secondary);">1. Primary Learning Objective</label>
+        <select id="onboardUseCase" class="styled-input" style="width: 100%; margin-top: 8px;">
+          <option value="Programming">Programming & Software Dev</option>
+          <option value="Cybersecurity">Cybersecurity & Networks</option>
+          <option value="AI/ML">Artificial Intelligence & Machine Learning</option>
+          <option value="Data Science">Data Science & Analytics</option>
+          <option value="College Studies">College Studies & Academics</option>
+          <option value="Research">Research & Scientific Inquiry</option>
+        </select>
+      </div>
+
+      <div class="form-group mb-3">
+        <label style="font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; color: var(--secondary);">2. Choose Focus Areas</label>
+        <div class="row g-2 mt-2" style="max-height: 150px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; border: 1px solid var(--border-glass);">
+          <div class="col-6"><label style="font-size:11px; color:var(--text-200); display:flex; align-items:center; gap:8px;"><input type="checkbox" name="onboardTopics" value="Java"> Java Core</label></div>
+          <div class="col-6"><label style="font-size:11px; color:var(--text-200); display:flex; align-items:center; gap:8px;"><input type="checkbox" name="onboardTopics" value="Python"> Python Scripting</label></div>
+          <div class="col-6"><label style="font-size:11px; color:var(--text-200); display:flex; align-items:center; gap:8px;"><input type="checkbox" name="onboardTopics" value="Spring Boot"> Spring Boot</label></div>
+          <div class="col-6"><label style="font-size:11px; color:var(--text-200); display:flex; align-items:center; gap:8px;"><input type="checkbox" name="onboardTopics" value="React"> React JS</label></div>
+          <div class="col-6"><label style="font-size:11px; color:var(--text-200); display:flex; align-items:center; gap:8px;"><input type="checkbox" name="onboardTopics" value="DSA"> Data Structures & Algorithms</label></div>
+          <div class="col-6"><label style="font-size:11px; color:var(--text-200); display:flex; align-items:center; gap:8px;"><input type="checkbox" name="onboardTopics" value="Network Security"> Network Security</label></div>
+          <div class="col-6"><label style="font-size:11px; color:var(--text-200); display:flex; align-items:center; gap:8px;"><input type="checkbox" name="onboardTopics" value="Machine Learning"> Machine Learning</label></div>
+          <div class="col-6"><label style="font-size:11px; color:var(--text-200); display:flex; align-items:center; gap:8px;"><input type="checkbox" name="onboardTopics" value="SQL"> Database SQL</label></div>
+        </div>
+      </div>
+
+      <div class="form-group mb-3">
+        <label for="onboardCustomInterests" style="font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; color: var(--secondary);">3. Custom Interests (comma-separated)</label>
+        <input type="text" id="onboardCustomInterests" class="styled-input" style="width: 100%; margin-top: 8px;" placeholder="e.g. Cryptography, Docker, Kubernetes">
+      </div>
+
+      <div class="form-group mb-3" style="display: flex; align-items: center; gap: 10px; margin-top: 15px;">
+        <input type="checkbox" id="onboardCrawlAllowed" checked style="width: 16px; height: 16px; cursor: pointer; border-radius: 4px; border: 1px solid var(--border-glass);">
+        <label for="onboardCrawlAllowed" style="font-size: 11px; color: var(--text-200); cursor: pointer; user-select: none;">Allow FocusAI to continuously compile study resources for my topics while online</label>
+      </div>
+
+      <button class="btn-primary btn-glow btn-full" onclick="submitOnboarding(event)" style="margin-top: 24px; width: 100%; justify-content: center; height: 42px;">
+        <i class="fa-solid fa-brain"></i> INITIALIZE COGNITIVE HUB
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Level Up Celebration Fullscreen Overlay -->
+<div id="levelUpOverlay" class="level-up-overlay" style="display:none; position:fixed; inset:0; background:rgba(6,7,12,0.92); backdrop-filter:blur(15px); z-index:99999; justify-content:center; align-items:center;">
+  <div class="level-up-card glass-card text-center p-5 position-relative overflow-hidden" style="max-width:420px; width:90%; border-top: 4px solid var(--warning); box-shadow: 0 0 50px rgba(245,158,11,0.25);">
+    <div class="level-up-shine" style="position:absolute; inset:0; background:radial-gradient(circle at 50% 30%, rgba(245,158,11,0.15) 0%, transparent 60%); pointer-events:none;"></div>
+    <div class="celebrate-badge mb-3" style="font-size:3rem; color:#f59e0b; filter:drop-shadow(0 0 10px rgba(245,158,11,0.5));"><i class="fa-solid fa-trophy"></i></div>
+    <h1 class="level-up-title animate-glow" style="font-size: 2rem; font-weight:800; color:#fff; text-transform:uppercase; letter-spacing:2px; margin-bottom: 8px; text-shadow: 0 0 20px rgba(245,158,11,0.4);">LEVEL UP!</h1>
+    <p class="sub-text text-muted mb-4" style="font-size:12px;">You have achieved a new cognitive status.</p>
+    <div class="level-showcase d-flex justify-content-center align-items-center gap-4 mb-4">
+      <div class="level-num-old" id="levelUpOld" style="font-size:2.5rem; font-weight:900; color:var(--text-400); font-family:var(--font-mono);">1</div>
+      <div class="level-arrow" style="font-size:1.5rem; color:#f59e0b;"><i class="fa-solid fa-arrow-right-long"></i></div>
+      <div class="level-num-new" id="levelUpNew" style="font-size:3.5rem; font-weight:900; color:#fff; font-family:var(--font-mono); text-shadow:0 0 15px var(--primary-glow);">2</div>
+    </div>
+    <h3 class="rank-name text-warning mb-4" id="levelUpRankName" style="font-size:1.2rem; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Time Trainee</h3>
+    <p class="reward-award text-success fw-bold mb-4" style="font-family: var(--font-mono); font-size:12px; margin-bottom: 24px;"><i class="fa-solid fa-coins"></i> +50 Focus Coins Awarded!</p>
+    <button class="btn-primary btn-glow px-5" onclick="closeLevelUpOverlay()" style="width:100%; justify-content:center;">Continue Focus Session</button>
+  </div>
+</div>
+
+<!-- Daily Goal Settings Modal -->
+<div class="modal fade" id="goalSettingsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-card p-4" style="border: 1px solid var(--border-glass); background: rgba(var(--glass-rgb), 0.15); backdrop-filter: blur(20px); color: var(--text-100);">
+      <div class="modal-header border-0 p-0 mb-3" style="display:flex; justify-content:space-between; align-items:center;">
+        <h5 class="modal-title fw-bold" style="font-size:16px; font-family:var(--font-mono);"><i class="fa-solid fa-gear text-info"></i> Goal Settings</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="font-size:12px;"></button>
+      </div>
+      <div class="modal-body p-0">
+        <p style="font-size:11.5px; color:var(--text-300); line-height:1.4; margin-bottom:16px;">
+          Customize your daily deep study focus target goal. This value is stored securely in your PostgreSQL profile preferences.
+        </p>
+        <div class="mb-4">
+          <label for="goalInput" class="form-label fw-bold" style="font-size:11px; font-family:var(--font-mono); text-transform:uppercase; color:var(--text-200);">Daily Target</label>
+          <select id="goalInput" class="styled-input w-100" style="height:38px; font-size:12px; margin:0;">
+            <option value="1800">30 minutes</option>
+            <option value="3600">1 hour</option>
+            <option value="5400">1.5 hours</option>
+            <option value="7200" selected>2 hours (Recommended)</option>
+            <option value="10800">3 hours</option>
+            <option value="14400">4 hours</option>
+            <option value="18000">5 hours</option>
+            <option value="21600">6 hours</option>
+          </select>
+        </div>
+        <div style="display:flex; gap:12px; justify-content:flex-end;">
+          <button type="button" class="btn-ghost" data-bs-dismiss="modal" style="padding: 6px 14px; font-size:12px;">Cancel</button>
+          <button type="button" class="btn-primary" onclick="saveGoalPreference()" style="padding: 6px 16px; font-size:12px; background:var(--info); border:1px solid rgba(0,191,255,0.4);"><i class="fa-solid fa-save"></i> Save Goal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <!-- Optimized: 43 app scripts bundled+minified into one deferred file -->
+    <script defer src="/js/app.bundle.min.js?v=9"></script>
+    <!-- app.js split into ordered section modules (global scope preserved) -->
+<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

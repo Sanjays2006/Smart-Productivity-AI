@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus Tracker Monitor</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 320px; min-height: 200px;
+      background: #0b0e17;
+      color: #f1f5f9;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 13px;
+    }
+    .header {
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .header h1 { font-size: 15px; font-weight: 700; }
+    .header .sub { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+    .status-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot.online  { background: #10b981; box-shadow: 0 0 6px #10b981; }
+    .dot.offline { background: #ef4444; }
+    .section { padding: 12px 16px; }
+    .section-title {
+      font-size: 10px; text-transform: uppercase;
+      letter-spacing: 0.5px; color: #64748b;
+      margin-bottom: 10px;
+    }
+    .site-row {
+      display: flex; justify-content: space-between;
+      align-items: center; padding: 7px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .site-row:last-child { border-bottom: none; }
+    .site-name { color: #cbd5e1; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .site-time {
+      background: rgba(99,102,241,0.2);
+      color: #818cf8;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 11px;
+      font-family: monospace;
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+    .empty { color: #475569; text-align: center; padding: 24px; }
+    .open-btn {
+      display: block; width: calc(100% - 32px);
+      margin: 12px 16px;
+      background: #6366f1;
+      color: white;
+      border: none; border-radius: 8px;
+      padding: 10px; font-size: 13px;
+      cursor: pointer; text-align: center;
+      text-decoration: none;
+    }
+    .open-btn:hover { background: #4f46e5; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span style="font-size:22px">⚡</span>
+    <div>
+      <h1>Focus Tracker</h1>
+      <div class="sub">Study Monitor Extension</div>
+    </div>
+  </div>
+  <div id="authView" style="display:none; padding:20px;">
+    <h2 style="font-size:16px; margin-bottom:15px; color:#818cf8">Sign in to Sync</h2>
+    <input type="text" id="username" placeholder="Username or Email" style="width:100%; padding:10px; margin-bottom:10px; border-radius:6px; border:1px solid #334155; background:#1e293b; color:white;">
+    <input type="password" id="password" placeholder="Password" style="width:100%; padding:10px; margin-bottom:12px; border-radius:6px; border:1px solid #334155; background:#1e293b; color:white;">
+    <div id="popupErr" style="display:none; color:#ef4444; font-size:11px; margin-bottom:12px; text-align:center;"></div>
+    <button id="loginBtn" style="width:100%; padding:10px; border-radius:6px; border:none; background:#6366f1; color:white; font-weight:600; cursor:pointer;">Sign In</button>
+  </div>
+
+  <div id="trackingView">
+    <div class="status-row">
+      <div class="dot" id="statusDot"></div>
+      <span id="statusText">Checking...</span>
+    </div>
+    <div class="section">
+      <div class="section-title">Today's Study Sites</div>
+      <div id="sitesList"><div class="empty">No sites tracked yet today.</div></div>
+    </div>
+    <a href="http://localhost:8080" target="_blank" class="open-btn">Open Focus Tracker Dashboard →</a>
+    <button id="logoutBtn" style="width:calc(100% - 32px); margin:0 16px 12px; background:transparent; color:#64748b; border:1px solid #334155; border-radius:8px; padding:6px; font-size:11px; cursor:pointer;">Sign Out</button>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+# ─── Secrets / local config ────────────────────────────────────────────────
+.env
+*.env
+data/postgres-config.properties
+**/application-local.properties
+
+# ─── Build output ──────────────────────────────────────────────────────────
+build/
+bin/
+target/
+out/
+.gradle/
+
+# ─── Databases (local H2 file store) ───────────────────────────────────────
+data/*.mv.db
+data/*.trace.db
+*.mv.db
+
+# ─── Logs / scratch ────────────────────────────────────────────────────────
+*.log
+err.txt
+gradle_*.txt
+scratch.css
+temp_spring/
+*.bak
+*.orig
+
+# ─── IDE / OS ──────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# ─── Node (frontend/extension tooling) ─────────────────────────────────────
+node_modules/
+package-lock.json

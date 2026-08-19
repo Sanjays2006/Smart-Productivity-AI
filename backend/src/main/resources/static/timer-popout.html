@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <title>FocusAI Timer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    body { background: #0e1018; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; margin: 0; }
+    .popout-wrap { text-align: center; padding: 20px; width: 100%; }
+    .timer-display { font-size: 3.5rem; font-family: 'JetBrains Mono', monospace; color: #fff; text-shadow: 0 0 20px rgba(99,102,241,0.5); margin-bottom: 10px; }
+    .status-badge { color: #818cf8; font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+  <div class="popout-wrap">
+    <div class="status-badge" id="status">Syncing...</div>
+    <div class="timer-display" id="display">00:00:00</div>
+    <div class="small text-muted" id="activity">No Session</div>
+  </div>
+
+  <script>
+    function update() {
+        const start = localStorage.getItem('timer_start');
+        if (start) {
+            const elapsed = Math.floor((Date.now() - parseInt(start)) / 1000);
+            const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+            const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+            const s = String(elapsed % 60).padStart(2, '0');
+            document.getElementById('display').textContent = `${h}:${m}:${s}`;
+            document.getElementById('status').textContent = 'Focusing';
+            
+            // Try to get activity name from parent if possible, or just storage
+            const actId = localStorage.getItem('timer_activity_id');
+            document.getElementById('activity').textContent = actId ? 'Active Session' : 'Unknown Activity';
+        } else {
+            document.getElementById('display').textContent = '00:00:00';
+            document.getElementById('status').textContent = 'Ready';
+            document.getElementById('activity').textContent = 'No Session';
+        }
+    }
+    setInterval(update, 1000);
+    update();
+  </script>
+</body>
+</html>
